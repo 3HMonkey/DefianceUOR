@@ -19,12 +19,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Server.Buffers;
 using Server.Json;
 using Server.Logging;
 using Server.Network;
@@ -125,12 +125,26 @@ namespace Server
         [ThreadStatic]
         private static DateTime _now;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static long GetTicks() => 1000L * Stopwatch.GetTimestamp() / Stopwatch.Frequency;
+        // For Unix Stopwatch.Frequency is normalized to 1ns
+        // We don't anticipate needing this for Windows/OSX
+        private static long _maxTickCountBeforePrecisionLoss = long.MaxValue / 1000L;
+        private static long _ticksPerMillisecond = Stopwatch.Frequency / 1000L;
 
         public static long TickCount
         {
-            get => _tickCount == 0 ? GetTicks() : _tickCount;
+            get
+            {
+                if (_tickCount != 0)
+                {
+                    return _tickCount;
+                }
+
+                var timestamp = Stopwatch.GetTimestamp();
+                return timestamp > _maxTickCountBeforePrecisionLoss
+                    ? timestamp / _ticksPerMillisecond
+                    // No precision loss
+                    : 1000L * timestamp / Stopwatch.Frequency;
+            }
             set => _tickCount = value;
         }
 
@@ -219,7 +233,7 @@ namespace Server
 
         public static bool EJ => Expansion >= Expansion.EJ;
 
-        public static string FindDataFile(string path, bool throwNotFound = true, bool warnNotFound = false)
+        public static string FindDataFile(string path, bool throwNotFound = true)
         {
             string fullPath = null;
 
@@ -235,16 +249,9 @@ namespace Server
                 fullPath = null;
             }
 
-            if (fullPath == null && (throwNotFound || warnNotFound))
+            if (fullPath == null && throwNotFound)
             {
-                Utility.PushColor(ConsoleColor.Red);
-                Console.WriteLine($"Data: {path} was not found");
-                Console.WriteLine("Make sure modernuo.json is properly configured");
-                Utility.PopColor();
-                if (throwNotFound)
-                {
-                    throw new FileNotFoundException($"Data: {path} was not found");
-                }
+                throw new FileNotFoundException($"Data: {path} was not found");
             }
 
             return fullPath;
@@ -548,50 +555,83 @@ namespace Server
 
         private static void VerifyType(Type type)
         {
-            var isItem = type.IsSubclassOf(typeof(Item));
-
-            if (!isItem && !type.IsSubclassOf(typeof(Mobile)))
+            if (!type.IsAssignableTo(typeof(ISerializable)) || type.IsInterface || type.IsAbstract)
             {
                 return;
             }
 
-            if (isItem)
+            if (type.IsSubclassOf(typeof(Item)))
             {
                 Interlocked.Increment(ref _itemCount);
             }
-            else
+            else if (!type.IsSubclassOf(typeof(Mobile)))
             {
                 Interlocked.Increment(ref _mobileCount);
             }
 
-            StringBuilder warningSb = null;
+            ValueStringBuilder errors = new ValueStringBuilder();
 
             try
             {
+                if (World.DirtyTrackingEnabled)
+                {
+                    var manualDirtyCheckingAttribute = type.GetCustomAttribute<ManualDirtyCheckingAttribute>(false);
+                    var codeGennedAttribute = type.GetCustomAttribute<SerializableAttribute>(false);
+
+                    if (manualDirtyCheckingAttribute == null && codeGennedAttribute == null)
+                    {
+                        errors.AppendLine("       - No property tracking (dirty checking)");
+                    }
+                }
+
                 if (type.GetConstructor(_serialTypeArray) == null)
                 {
-                    warningSb = new StringBuilder();
-                    warningSb.AppendLine("       - No serialization constructor");
+                    errors.AppendLine("       - No serialization constructor");
                 }
 
                 const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic |
                                                   BindingFlags.Instance | BindingFlags.DeclaredOnly;
-                if (type.GetMethod("Serialize", bindingFlags) == null)
+
+                var hasSerializeMethod = false;
+                var hasDeserializeMethod = false;
+
+                foreach (var method in type.GetMethods(bindingFlags))
                 {
-                    warningSb ??= new StringBuilder();
-                    warningSb.AppendLine("       - No Serialize() method");
+                    if (method.Name == "Serialize")
+                    {
+                        hasSerializeMethod = true;
+                    }
+
+                    if (method.Name == "Deserialize")
+                    {
+                        var parameters = method.GetParameters();
+                        if (parameters.Length == 1 && parameters[0].ParameterType == typeof(IGenericReader))
+                        {
+                            hasDeserializeMethod = true;
+                        }
+                    }
                 }
 
-                if (type.GetMethod("Deserialize", bindingFlags) == null)
+                if (!hasSerializeMethod)
                 {
-                    warningSb ??= new StringBuilder();
-                    warningSb.AppendLine("       - No Deserialize() method");
+                    errors.AppendLine("       - No Serialize() method");
                 }
 
-                if (warningSb?.Length > 0)
+                if (!hasDeserializeMethod)
                 {
-                    Console.WriteLine("Warning: {0}\n{1}", type, warningSb);
+                    errors.AppendLine("       - No Deserialize() method");
                 }
+
+                if (errors.Length > 0)
+                {
+                    Utility.PushColor(ConsoleColor.Red);
+                    Console.WriteLine($"{type}\n{errors.ToString()}");
+                    Utility.PopColor();
+                }
+            }
+            catch (AmbiguousMatchException e)
+            {
+                // ignored
             }
             catch
             {
