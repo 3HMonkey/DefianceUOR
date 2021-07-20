@@ -171,7 +171,7 @@ namespace Server.Items
             AddComponent(new TrainingDummy(), 0, 0, 0);
         }
 
-        public TrainingDummyEastAddon(Serial serial) : base(serial)
+        public TrainingDummyEastAddon(Serial serial) : base()
         {
         }
 
@@ -229,7 +229,7 @@ namespace Server.Items
             AddComponent(new TrainingDummy(0x1070), 0, 0, 0);
         }
 
-        public TrainingDummySouthAddon(Serial serial) : base(serial)
+        public TrainingDummySouthAddon(Serial serial) : base()
         {
         }
 
