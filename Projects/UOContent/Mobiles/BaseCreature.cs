@@ -5618,7 +5618,6 @@ namespace Server.Mobiles
             public DeleteTimer(Mobile creature, TimeSpan delay) : base(delay)
             {
                 m = creature;
-                Priority = TimerPriority.OneMinute;
             }
 
             protected override void OnTick()
@@ -5637,7 +5636,6 @@ namespace Server.Mobiles
         public LoyaltyTimer() : base(InternalDelay, InternalDelay)
         {
             m_NextHourlyCheck = Core.Now + TimeSpan.FromHours(1.0);
-            Priority = TimerPriority.FiveSeconds;
         }
 
         public static void Initialize()
