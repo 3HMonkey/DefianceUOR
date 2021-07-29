@@ -481,6 +481,7 @@ namespace Server
             TcpServer.Start();
             EventSink.InvokeServerStarted();
             RunEventLoop();
+            
         }
 
         public static void RunEventLoop()
