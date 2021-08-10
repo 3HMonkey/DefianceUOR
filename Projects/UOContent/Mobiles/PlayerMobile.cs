@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Server.Accounting;
 using Server.ContextMenus;
 using Server.Engines.BulkOrders;
@@ -149,6 +150,7 @@ namespace Server.Mobiles
         private List<Mobile> m_AllFollowers;
         private int m_BeardModID = -1, m_BeardModHue;
 
+        // TODO: Pool BuffInfo objects
         private Dictionary<BuffIcon, BuffInfo> m_BuffTable;
 
         private DuelPlayer m_DuelPlayer;
@@ -995,7 +997,7 @@ namespace Server.Mobiles
 
             if (Core.SE)
             {
-                Timer.DelayCall(CheckPets);
+                Timer.StartTimer(CheckPets);
             }
         }
 
@@ -1106,7 +1108,8 @@ namespace Server.Mobiles
             }
         }
 
-        private static bool CheckBlock(MountBlock block) => block?.m_Timer.Running == true;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool CheckBlock(MountBlock block) => block?._timerToken.Running == true;
 
         public void SetMountBlock(BlockMountType type, TimeSpan duration, bool dismount)
         {
@@ -1122,7 +1125,7 @@ namespace Server.Mobiles
                 }
             }
 
-            if (m_MountBlock?.m_Timer.Running != true || m_MountBlock.m_Timer.Next < Core.Now + duration)
+            if (!CheckBlock(m_MountBlock) || m_MountBlock._timerToken.Next < Core.Now + duration)
             {
                 m_MountBlock = new MountBlock(duration, type, this);
             }
@@ -1269,7 +1272,7 @@ namespace Server.Mobiles
 
                     if (from.NetState != null)
                     {
-                        Timer.DelayCall(TimeSpan.FromSeconds(1.0), from.NetState.Disconnect, "Server is locked down");
+                        Timer.StartTimer(TimeSpan.FromSeconds(1.0), () => from.NetState.Disconnect("Server is locked down"));
                     }
                 }
                 else if (from.AccessLevel >= AccessLevel.Administrator)
@@ -1316,7 +1319,7 @@ namespace Server.Mobiles
             }
 
             m_NoDeltaRecursion = true;
-            Timer.DelayCall(ValidateEquipment_Sandbox);
+            Timer.StartTimer(ValidateEquipment_Sandbox);
         }
 
         private void ValidateEquipment_Sandbox()
@@ -1571,7 +1574,7 @@ namespace Server.Mobiles
 
             DisguiseTimers.StartTimer(m);
 
-            Timer.DelayCall(SpecialMove.ClearAllMoves, m);
+            Timer.StartTimer(() => SpecialMove.ClearAllMoves(m));
         }
 
         private static void EventSink_Disconnected(Mobile from)
@@ -1627,7 +1630,7 @@ namespace Server.Mobiles
                 return;
             }
 
-            InvisibilitySpell.RemoveTimer(this);
+            InvisibilitySpell.StopTimer(this);
 
             base.RevealingAction();
 
@@ -2414,10 +2417,7 @@ namespace Server.Mobiles
                 c?.Slip();
             }
 
-            if (Confidence.IsRegenerating(this))
-            {
-                Confidence.StopRegenerating(this);
-            }
+            Confidence.StopRegenerating(this);
 
             WeightOverloading.FatigueOnDamage(this, amount);
 
@@ -2426,7 +2426,7 @@ namespace Server.Mobiles
 
             if (willKill && from is PlayerMobile mobile)
             {
-                Timer.DelayCall(TimeSpan.FromSeconds(10), mobile.RecoverAmmo);
+                Timer.StartTimer(TimeSpan.FromSeconds(10), mobile.RecoverAmmo);
             }
 
             base.OnDamage(amount, from, willKill);
@@ -2453,7 +2453,7 @@ namespace Server.Mobiles
         {
             if (!Warmode)
             {
-                Timer.DelayCall(TimeSpan.FromSeconds(10), RecoverAmmo);
+                Timer.StartTimer(TimeSpan.FromSeconds(10), RecoverAmmo);
             }
         }
 
@@ -2718,7 +2718,7 @@ namespace Server.Mobiles
             {
                 if (YoungDeathTeleport())
                 {
-                    Timer.DelayCall(TimeSpan.FromSeconds(2.5), SendYoungDeathNotice);
+                    Timer.StartTimer(TimeSpan.FromSeconds(2.5), SendYoungDeathNotice);
                 }
             }
 
@@ -3704,7 +3704,7 @@ namespace Server.Mobiles
                         if (pet.Map != Map)
                         {
                             pet.PlaySound(pet.GetAngerSound());
-                            Timer.DelayCall(pet.Delete);
+                            Timer.StartTimer(pet.Delete);
                         }
 
                         continue;
@@ -4635,10 +4635,7 @@ namespace Server.Mobiles
                 return;
             }
 
-            if (info.Timer?.Running == true)
-            {
-                info.Timer.Stop();
-            }
+            info.TimerToken.Cancel();
 
             if (NetState?.BuffIcon == true)
             {
@@ -4670,14 +4667,14 @@ namespace Server.Mobiles
 
         private class MountBlock
         {
-            public readonly Timer m_Timer;
+            public TimerExecutionToken _timerToken;
             public readonly BlockMountType m_Type;
 
             public MountBlock(TimeSpan duration, BlockMountType type, Mobile mobile)
             {
                 m_Type = type;
 
-                m_Timer = Timer.DelayCall(duration, RemoveBlock, mobile);
+                Timer.StartTimer(duration, () => RemoveBlock(mobile), out _timerToken);
             }
 
             private void RemoveBlock(Mobile mobile)
@@ -4686,6 +4683,8 @@ namespace Server.Mobiles
                 {
                     pm.m_MountBlock = null;
                 }
+
+                _timerToken.Cancel();
             }
         }
 

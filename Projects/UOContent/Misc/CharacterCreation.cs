@@ -753,7 +753,7 @@ namespace Server.Misc
                          * without an AOS client.  You are now being taken to the city of
                          * Haven on the Trammel facet.
                          */
-                        Timer.DelayCall(BadStartMessageDelay, from => from.SendLocalizedMessage(1062205), m);
+                        Timer.StartTimer(BadStartMessageDelay, () => m.SendLocalizedMessage(1062205));
 
                         break;
                     }
@@ -777,7 +777,7 @@ namespace Server.Misc
                          * without an SE client. You are now being taken to the city of
                          * Haven on the Trammel facet.
                          */
-                        Timer.DelayCall(BadStartMessageDelay, from => from.SendLocalizedMessage(1063487), m);
+                        Timer.StartTimer(BadStartMessageDelay, () => m.SendLocalizedMessage(1063487));
 
                         break;
                     }
@@ -797,7 +797,7 @@ namespace Server.Misc
                          * without an SE client. You are now being taken to the city of
                          * Haven on the Trammel facet.
                          */
-                        Timer.DelayCall(BadStartMessageDelay, from => from.SendLocalizedMessage(1063487), m);
+                        Timer.StartTimer(BadStartMessageDelay, () => m.SendLocalizedMessage(1063487));
 
                         break;
                     }
