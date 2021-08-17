@@ -49,7 +49,7 @@ namespace SerializableMigration
             return ruleArguments != null;
         }
 
-        public void GenerateDeserializationMethod(StringBuilder source, string indent, SerializableProperty property)
+        public void GenerateDeserializationMethod(StringBuilder source, string indent, SerializableProperty property, string? parentReference)
         {
             var expectedRule = RuleName;
             var ruleName = property.Rule;
@@ -59,7 +59,7 @@ namespace SerializableMigration
             }
 
             var propertyName = property.Name;
-            source.AppendLine($"{indent}{propertyName} = reader.Read{property.RuleArguments[0]}();");
+            source.AppendLine($"{indent}{propertyName} = reader.Read{property.RuleArguments?[0] ?? ""}();");
         }
 
         public void GenerateSerializationMethod(StringBuilder source, string indent, SerializableProperty property)
