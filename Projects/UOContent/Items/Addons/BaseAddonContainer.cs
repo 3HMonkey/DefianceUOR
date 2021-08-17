@@ -14,7 +14,7 @@ namespace Server.Items
         {
             AddonComponent.ApplyLightTo(this);
 
-            Components = new List<AddonContainerComponent>();
+            _components = new List<AddonContainerComponent>();
         }
 
         public override bool DisplayWeight => false;
@@ -53,6 +53,7 @@ namespace Server.Items
                     Hue = CraftResources.GetHue(m_Resource);
 
                     InvalidateProperties();
+                    this.MarkDirty();
                 }
             }
         }
