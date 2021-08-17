@@ -43,6 +43,7 @@ namespace Server.Items
                 case 1:
                     {
                         _resource = (CraftResource)reader.ReadInt();
+                        //_resource = (CraftResource)reader.ReadByte();
                         break;
                     }
                 case 0:
