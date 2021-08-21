@@ -1120,8 +1120,7 @@ namespace Server
         [CommandProperty(AccessLevel.GameMaster)]
         public Container Corpse { get; set; }
 
-        public static char[] GhostChars { get; set; } = { 'o', 'O' };
-
+        public static char[] GhostChars { get; set; }
         public static bool NoSpeechLOS { get; set; }
 
         public static TimeSpan AutoManifestTimeout { get; set; } = TimeSpan.FromSeconds(5.0);
@@ -2109,7 +2108,6 @@ namespace Server
                     if (Stam < StamMax)
                     {
                         m_StamTimer ??= new StamTimer(this);
-
                         m_StamTimer.Start();
                     }
                     else if (Stam > StamMax)
@@ -2168,7 +2166,6 @@ namespace Server
                     if (Mana < ManaMax)
                     {
                         m_ManaTimer ??= new ManaTimer(this);
-
                         m_ManaTimer.Start();
                     }
                     else if (Mana > ManaMax)
@@ -2235,17 +2232,14 @@ namespace Server
                         DamageEntries.Clear(); // reset damage entries on full HP
                     }
                 }
+                else if (CanRegenHits)
+                {
+                    m_HitsTimer ??= new HitsTimer(this);
+                    m_HitsTimer.Start();
+                }
                 else
                 {
-                    if (CanRegenHits)
-                    {
-                        m_HitsTimer ??= new HitsTimer(this);
-                        m_HitsTimer.Start();
-                    }
-                    else
-                    {
-                        m_HitsTimer?.Stop();
-                    }
+                    m_HitsTimer?.Stop();
                 }
 
                 if (m_Hits != value)
@@ -2280,22 +2274,14 @@ namespace Server
 
                 value = Math.Clamp(value, 0, StamMax);
 
-                if (value == StamMax)
+                if (CanRegenStam && value < StamMax)
                 {
-                    m_StamTimer?.Stop();
+                    m_StamTimer ??= new StamTimer(this);
+                    m_StamTimer.Start();
                 }
                 else
                 {
-                    if (CanRegenStam)
-                    {
-                        m_StamTimer ??= new StamTimer(this);
-
-                        m_StamTimer.Start();
-                    }
-                    else
-                    {
-                        m_StamTimer?.Stop();
-                    }
+                    m_StamTimer?.Stop();
                 }
 
                 if (m_Stam != value)
@@ -2343,18 +2329,14 @@ namespace Server
                         SendLocalizedMessage(501846); // You are at peace.
                     }
                 }
+                else if (CanRegenMana)
+                {
+                    m_ManaTimer ??= new ManaTimer(this);
+                    m_ManaTimer.Start();
+                }
                 else
                 {
-                    if (CanRegenMana)
-                    {
-                        m_ManaTimer ??= new ManaTimer(this);
-
-                        m_ManaTimer.Start();
-                    }
-                    else
-                    {
-                        m_ManaTimer?.Stop();
-                    }
+                    m_ManaTimer?.Stop();
                 }
 
                 if (m_Mana != value)
@@ -3875,7 +3857,7 @@ namespace Server
             }
         }
 
-        public virtual bool CheckAttack(Mobile m) => Utility.InUpdateRange(this, m) && CanSee(m) && InLOS(m);
+        public virtual bool CheckAttack(Mobile m) => Utility.InUpdateRange(Location, m.Location) && CanSee(m) && InLOS(m);
 
         /// <summary>
         ///     Overridable. Virtual event invoked after the <see cref="Combatant" /> property has changed.
@@ -5042,7 +5024,7 @@ namespace Server
             var root = item.RootParent;
             var okay = false;
 
-            if (!Utility.InUpdateRange(this, item.GetWorldLocation()))
+            if (!Utility.InUpdateRange(Location, item.GetWorldLocation()))
             {
                 item.OnDoubleClickOutOfRange(this);
             }
@@ -5112,7 +5094,7 @@ namespace Server
                 return;
             }
 
-            if (!Utility.InUpdateRange(this, m))
+            if (!Utility.InUpdateRange(Location, m.Location))
             {
                 m.OnDoubleClickOutOfRange(this);
             }
@@ -5526,7 +5508,7 @@ namespace Server
             using var sb = new ValueStringBuilder(stackalloc char[Math.Min(text.Length, 256)]);
             for (var i = 0; i < text.Length; ++i)
             {
-                sb.Append(text[i] != ' ' ? GhostChars.RandomElement() : ' ');
+                sb.Append(text[i] != ' ' ? (GhostChars ?? DefaultGhostChars).RandomElement() : ' ');
             }
 
             text = sb.ToString();
@@ -6587,7 +6569,6 @@ namespace Server
                 if (CanRegenStam)
                 {
                     m_StamTimer ??= new StamTimer(this);
-
                     m_StamTimer.Start();
                 }
                 else
@@ -6605,7 +6586,6 @@ namespace Server
                 if (CanRegenMana)
                 {
                     m_ManaTimer ??= new ManaTimer(this);
-
                     m_ManaTimer.Start();
                 }
                 else
@@ -7987,7 +7967,7 @@ namespace Server
         /// <param name="from"></param>
         public virtual void OnStatsQuery(Mobile from)
         {
-            if (from.Map == Map && Utility.InUpdateRange(this, from) && from.CanSee(this))
+            if (from.Map == Map && Utility.InUpdateRange(Location, from.Location) && from.CanSee(this))
             {
                 from.m_NetState.SendMobileStatus(from, this);
             }
@@ -8156,6 +8136,8 @@ namespace Server
         public static TimeSpan GetStamRegenRate(Mobile m) => StamRegenRateHandler?.Invoke(m) ?? DefaultStamRate;
 
         public static TimeSpan GetManaRegenRate(Mobile m) => ManaRegenRateHandler?.Invoke(m) ?? DefaultManaRate;
+
+        public static char[] DefaultGhostChars = { 'o', 'O' };
 
         public Prompt BeginPrompt(PromptCallback callback, PromptCallback cancelCallback) =>
             Prompt = new SimplePrompt(callback, cancelCallback);
@@ -9310,11 +9292,7 @@ namespace Server
         {
             private readonly Mobile m_Owner;
 
-            public ManaTimer(Mobile m)
-                : base(GetManaRegenRate(m), GetManaRegenRate(m))
-            {
-                m_Owner = m;
-            }
+            public ManaTimer(Mobile m) : base(GetManaRegenRate(m), GetManaRegenRate(m)) => m_Owner = m;
 
             protected override void OnTick()
             {
@@ -9331,11 +9309,7 @@ namespace Server
         {
             private readonly Mobile m_Owner;
 
-            public HitsTimer(Mobile m)
-                : base(GetHitsRegenRate(m), GetHitsRegenRate(m))
-            {
-                m_Owner = m;
-            }
+            public HitsTimer(Mobile m) : base(GetHitsRegenRate(m), GetHitsRegenRate(m)) => m_Owner = m;
 
             protected override void OnTick()
             {
@@ -9352,11 +9326,7 @@ namespace Server
         {
             private readonly Mobile m_Owner;
 
-            public StamTimer(Mobile m)
-                : base(GetStamRegenRate(m), GetStamRegenRate(m))
-            {
-                m_Owner = m;
-            }
+            public StamTimer(Mobile m) : base(GetStamRegenRate(m), GetStamRegenRate(m)) => m_Owner = m;
 
             protected override void OnTick()
             {

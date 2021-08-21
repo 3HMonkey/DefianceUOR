@@ -45,6 +45,7 @@ namespace SerializationGenerator
         public const string TIMER_DRIFT_ATTRIBUTE = "Server.TimerDriftAttribute";
         public const string DESERIALIZE_TIMER_FIELD_ATTRIBUTE = "Server.DeserializeTimerFieldAttribute";
         public const string SERIALIZABLE_FIELD_SAVE_FLAG_ATTRIBUTE = "Server.SerializableFieldSaveFlagAttribute";
+        public const string SERIALIZABLE_FIELD_DEFAULT_ATTRIBUTE = "Server.SerializableFieldDefaultAttribute";
         public const string RAW_SERIALIZABLE_INTERFACE = "Server.IRawSerializable";
 
         public static bool IsTimerDrift(this AttributeData attr, Compilation compilation) =>
@@ -102,6 +103,7 @@ namespace SerializationGenerator
             var genericCtor = symbol.Constructors.FirstOrDefault(
                 m => !m.IsStatic &&
                      m.MethodKind == MethodKind.Constructor &&
+                     m.Parameters.Length >= 1 &&
                      m.Parameters.Length <= 2 &&
                      SymbolEqualityComparer.Default.Equals(m.Parameters[0].Type, genericReaderInterface)
             );
