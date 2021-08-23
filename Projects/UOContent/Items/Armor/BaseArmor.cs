@@ -1132,138 +1132,309 @@ namespace Server.Items
 
         private void Deserialize(IGenericReader reader, int version)
         {
-            var flags = (OldSaveFlag)reader.ReadEncodedInt();
+            var saveFlags = reader.ReadEnum<OldSaveFlag>();
 
-            if (GetSaveFlag(flags, OldSaveFlag.Attributes))
+            if ((saveFlags & OldSaveFlag.Attributes) != 0)
             {
                 Attributes = new AosAttributes(this);
                 Attributes.Deserialize(reader);
             }
+            else
+            {
+                Attributes = AttributesDefaultValue();
+            }
 
-            if (GetSaveFlag(flags, OldSaveFlag.ArmorAttributes))
+            if ((saveFlags & OldSaveFlag.ArmorAttributes) != 0)
             {
                 ArmorAttributes = new AosArmorAttributes(this);
                 ArmorAttributes.Deserialize(reader);
             }
-
-            if (GetSaveFlag(flags, OldSaveFlag.PhysicalBonus))
+            else
             {
-                _physicalBonus = reader.ReadEncodedInt();
+                ArmorAttributes = ArmorAttributesDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.FireBonus))
+            if ((saveFlags & OldSaveFlag.PhysicalBonus) != 0)
             {
-                _fireBonus = reader.ReadEncodedInt();
+                PhysicalBonus = reader.ReadInt();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.ColdBonus))
+            if ((saveFlags & OldSaveFlag.FireBonus) != 0)
             {
-                _coldBonus = reader.ReadEncodedInt();
+                FireBonus = reader.ReadInt();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.PoisonBonus))
+            if ((saveFlags & OldSaveFlag.ColdBonus) != 0)
             {
-                _poisonBonus = reader.ReadEncodedInt();
+                ColdBonus = reader.ReadInt();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.EnergyBonus))
+            if ((saveFlags & OldSaveFlag.PoisonBonus) != 0)
             {
-                _energyBonus = reader.ReadEncodedInt();
+                PoisonBonus = reader.ReadInt();
             }
 
-            _identified = GetSaveFlag(flags, OldSaveFlag.Identified);
-
-            if (GetSaveFlag(flags, OldSaveFlag.MaxHitPoints))
+            if ((saveFlags & OldSaveFlag.EnergyBonus) != 0)
             {
-                _maxHitPoints = reader.ReadEncodedInt();
+                EnergyBonus = reader.ReadInt();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.HitPoints))
+            Identified = (saveFlags & OldSaveFlag.Identified) != 0;
+
+            if ((saveFlags & OldSaveFlag.MaxHitPoints) != 0)
             {
-                _hitPoints = reader.ReadEncodedInt();
+                MaxHitPoints = reader.ReadInt();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.Crafter))
+            if ((saveFlags & OldSaveFlag.HitPoints) != 0)
             {
-                _crafter = reader.ReadEntity<Mobile>();
+                HitPoints = reader.ReadInt();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.Quality))
+            if ((saveFlags & OldSaveFlag.Crafter) != 0)
             {
-                _quality = (ArmorQuality)reader.ReadEncodedInt();
+                Crafter = reader.ReadEntity<Mobile>();
+            }
+
+            if ((saveFlags & OldSaveFlag.Quality) != 0)
+            {
+                Quality = reader.ReadEnum<ArmorQuality>();
+            }
+
+            if ((saveFlags & OldSaveFlag.Durability) != 0)
+            {
+                Durability = reader.ReadEnum<ArmorDurabilityLevel>();
+            }
+
+            if ((saveFlags & OldSaveFlag.Protection) != 0)
+            {
+                ProtectionLevel = reader.ReadEnum<ArmorProtectionLevel>();
+            }
+
+            if ((saveFlags & OldSaveFlag.Resource) != 0)
+            {
+                Resource = reader.ReadEnum<CraftResource>();
             }
             else
             {
-                _quality = ArmorQuality.Regular;
+                Resource = ResourceDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.Durability))
+            if ((saveFlags & OldSaveFlag.BaseArmor) != 0)
             {
-                _durability = (ArmorDurabilityLevel)reader.ReadEncodedInt();
+                BaseArmorRating = reader.ReadInt();
+            }
+            else
+            {
+                BaseArmorRating = ArmorBaseDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.Protection))
+            if ((saveFlags & OldSaveFlag.StrBonus) != 0)
             {
-                _protection = (ArmorProtectionLevel)reader.ReadEncodedInt();
+                StrBonus = reader.ReadInt();
+            }
+            else
+            {
+                StrBonus = StrBonusDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.Resource))
+            if ((saveFlags & OldSaveFlag.DexBonus) != 0)
             {
-                _resource = (CraftResource)reader.ReadEncodedInt();
+                DexBonus = reader.ReadInt();
+            }
+            else
+            {
+                DexBonus = DexBonusDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.BaseArmor))
+            if ((saveFlags & OldSaveFlag.IntBonus) != 0)
             {
-                _armorBase = reader.ReadEncodedInt();
+                IntBonus = reader.ReadInt();
+            }
+            else
+            {
+                IntBonus = IntBonusDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.StrBonus))
+            if ((saveFlags & OldSaveFlag.StrReq) != 0)
             {
-                _strBonus = reader.ReadEncodedInt();
+                StrRequirement = reader.ReadInt();
+            }
+            else
+            {
+                StrRequirement = StrReqDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.DexBonus))
+            if ((saveFlags & OldSaveFlag.DexReq) != 0)
             {
-                _dexBonus = reader.ReadEncodedInt();
+                DexRequirement = reader.ReadInt();
+            }
+            else
+            {
+                DexRequirement = DexReqDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.IntBonus))
+            if ((saveFlags & OldSaveFlag.IntReq) != 0)
             {
-                _intBonus = reader.ReadEncodedInt();
+                IntRequirement = reader.ReadInt();
+            }
+            else
+            {
+                IntRequirement = IntReqDefaultValue();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.StrReq))
+            if ((saveFlags & OldSaveFlag.MedAllowance) != 0)
             {
-                _strReq = reader.ReadEncodedInt();
+                MeditationAllowance = reader.ReadEnum<ArmorMeditationAllowance>();
             }
 
-            if (GetSaveFlag(flags, OldSaveFlag.DexReq))
+            if ((saveFlags & OldSaveFlag.SkillBonuses) != 0)
             {
-                _dexReq = reader.ReadEncodedInt();
-            }
-
-            if (GetSaveFlag(flags, OldSaveFlag.IntReq))
-            {
-                _intReq = reader.ReadEncodedInt();
-            }
-
-            if (GetSaveFlag(flags, OldSaveFlag.MedAllowance))
-            {
-                _meditate = (AMA)reader.ReadEncodedInt();
-            }
-
-            SkillBonuses = new AosSkillBonuses(this);
-
-            if (GetSaveFlag(flags, OldSaveFlag.SkillBonuses))
-            {
+                SkillBonuses = new AosSkillBonuses(this);
                 SkillBonuses.Deserialize(reader);
             }
-
-            if (GetSaveFlag(flags, OldSaveFlag.PlayerConstructed))
+            else
             {
-                PlayerConstructed = true;
+                SkillBonuses = SkillBonusesDefaultValue();
             }
+
+            PlayerConstructed = (saveFlags & OldSaveFlag.PlayerConstructed) != 0;
         }
+
+        //private void Deserialize(IGenericReader reader, int version)
+        //{
+        //    var flags = (OldSaveFlag)reader.ReadEncodedInt();
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.Attributes))
+        //    {
+        //        Attributes = new AosAttributes(this);
+        //        Attributes.Deserialize(reader);
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.ArmorAttributes))
+        //    {
+        //        ArmorAttributes = new AosArmorAttributes(this);
+        //        ArmorAttributes.Deserialize(reader);
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.PhysicalBonus))
+        //    {
+        //        _physicalBonus = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.FireBonus))
+        //    {
+        //        _fireBonus = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.ColdBonus))
+        //    {
+        //        _coldBonus = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.PoisonBonus))
+        //    {
+        //        _poisonBonus = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.EnergyBonus))
+        //    {
+        //        _energyBonus = reader.ReadEncodedInt();
+        //    }
+
+        //    _identified = GetSaveFlag(flags, OldSaveFlag.Identified);
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.MaxHitPoints))
+        //    {
+        //        _maxHitPoints = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.HitPoints))
+        //    {
+        //        _hitPoints = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.Crafter))
+        //    {
+        //        _crafter = reader.ReadEntity<Mobile>();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.Quality))
+        //    {
+        //        _quality = (ArmorQuality)reader.ReadEncodedInt();
+        //    }
+        //    else
+        //    {
+        //        _quality = ArmorQuality.Regular;
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.Durability))
+        //    {
+        //        _durability = (ArmorDurabilityLevel)reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.Protection))
+        //    {
+        //        _protection = (ArmorProtectionLevel)reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.Resource))
+        //    {
+        //        _resource = (CraftResource)reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.BaseArmor))
+        //    {
+        //        _armorBase = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.StrBonus))
+        //    {
+        //        _strBonus = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.DexBonus))
+        //    {
+        //        _dexBonus = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.IntBonus))
+        //    {
+        //        _intBonus = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.StrReq))
+        //    {
+        //        _strReq = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.DexReq))
+        //    {
+        //        _dexReq = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.IntReq))
+        //    {
+        //        _intReq = reader.ReadEncodedInt();
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.MedAllowance))
+        //    {
+        //        _meditate = (AMA)reader.ReadEncodedInt();
+        //    }
+
+        //    SkillBonuses = new AosSkillBonuses(this);
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.SkillBonuses))
+        //    {
+        //        SkillBonuses.Deserialize(reader);
+        //    }
+
+        //    if (GetSaveFlag(flags, OldSaveFlag.PlayerConstructed))
+        //    {
+        //        PlayerConstructed = true;
+        //    }
+        //}
 
         public override bool AllowSecureTrade(Mobile from, Mobile to, Mobile newOwner, bool accepted)
         {
@@ -1766,5 +1937,35 @@ namespace Server.Items
             SkillBonuses = 0x00800000,
             PlayerConstructed = 0x01000000
         }
+
+        //private void MigrateFrom(V8Content content)
+        //{
+        //    _attributes = content.Attributes ?? AttributesDefaultValue();
+        //    _armorAttributes = content.ArmorAttributes ?? ArmorAttributesDefaultValue();
+        //    _physicalBonus = content.PhysicalBonus ?? 0;
+        //    _fireBonus = content.FireBonus ?? 0;
+        //    _coldBonus = content.ColdBonus ?? 0;
+        //    _poisonBonus = content.PoisonBonus ?? 0;
+        //    _energyBonus = content.EnergyBonus ?? 0;
+        //    _identified = content.Identified;
+        //    _maxHitPoints = content.MaxHitPoints ?? 0;
+        //    _hitPoints = content.HitPoints ?? 0;
+        //    _crafter = content.Crafter;
+        //    _quality = content.Quality ?? ArmorQuality.Regular;
+        //    _durability = content.Durability ?? ArmorDurabilityLevel.Regular;
+        //    _protection = content.ProtectionLevel ?? ArmorProtectionLevel.Regular;
+        //    _resource = content.Resource ?? ResourceDefaultValue();
+        //    _armorBase = content.BaseArmorRating ?? ArmorBaseDefaultValue();
+        //    _strBonus = content.StrBonus ?? StrBonusDefaultValue();
+        //    _dexBonus = content.DexBonus ?? DexBonusDefaultValue();
+        //    _intBonus = content.IntBonus ?? IntBonusDefaultValue();
+        //    _strReq = content.StrRequirement ?? StrReqDefaultValue();
+        //    _dexReq = content.DexRequirement ?? DexReqDefaultValue();
+        //    _intReq = content.IntRequirement ?? IntReqDefaultValue();
+        //    _meditate = content.MeditationAllowance ?? (AMA)(-1);
+        //    _skillBonuses = content.SkillBonuses ?? SkillBonusesDefaultValue();
+        //    _playerConstructed = content.PlayerConstructed;
+        //}
     }
 }
+
