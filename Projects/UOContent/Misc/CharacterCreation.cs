@@ -1006,7 +1006,13 @@ namespace Server.Misc
                         }
                         else
                         {
-                            EquipItem(new LeatherChest());
+                            EquipItem(new Bascinet());
+                            EquipItem(new StuddedGorget());
+                            EquipItem(new StuddedChest());
+                            EquipItem(new StuddedArms());
+                            EquipItem(new StuddedGloves());
+                            EquipItem(new StuddedLegs());
+                            EquipItem(new ThighBoots());
                         }
 
                         break;

@@ -408,6 +408,8 @@ namespace Server
 
         public virtual bool IsVirtualItem => false;
 
+        public virtual bool CanSeeStaffOnly(Mobile from) => from.AccessLevel > AccessLevel.Counselor;
+
         public virtual int LabelNumber
         {
             get
@@ -486,7 +488,8 @@ namespace Server
         [CommandProperty(AccessLevel.Counselor, AccessLevel.GameMaster)]
         public int PileWeight => (int)Math.Ceiling(Weight * Amount);
 
-        [Hue, CommandProperty(AccessLevel.GameMaster)]
+        [Hue]
+        [CommandProperty(AccessLevel.GameMaster)]
         public virtual int Hue
         {
             get => m_Hue;
@@ -1046,6 +1049,11 @@ namespace Server
             {
                 writer.WriteEncodedInt(info.m_SavedFlags);
             }
+        }
+
+        public void MoveToWorld(WorldLocation worldLocation)
+        {
+            MoveToWorld(worldLocation.Location, worldLocation.Map);
         }
 
         /// <summary>
@@ -2096,6 +2104,47 @@ namespace Server
 
         public virtual bool CheckConflictingLayer(Mobile m, Item item, Layer layer) => m_Layer == layer;
 
+        // Uses Race.RaceFlag
+        public virtual int RequiredRaces => Race.AllowAllRaces;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CheckRace(Race race) => Race.IsAllowedRace(race, RequiredRaces);
+
+        public bool CheckRace(Mobile from, bool message = true)
+        {
+            var race = from.Race;
+            var requiredRaces = RequiredRaces;
+
+            if (Race.IsAllowedRace(race, requiredRaces))
+            {
+                return true;
+            }
+
+            if (!message)
+            {
+                return false;
+            }
+
+            if (race == Race.Gargoyle)
+            {
+                from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1111708); // Gargoyles can't wear this.
+            }
+            else if (requiredRaces == Race.AllowGargoylesOnly)
+            {
+                from.LocalOverheadMessage(Network.MessageType.Regular, 0x3B2, 1111707); // Only gargoyles can wear this.
+            }
+            else if (race != Race.Elf)
+            {
+                from.SendLocalizedMessage(1072203); // Only Elves may use this.
+            }
+            else if (race != Race.Human)
+            {
+                from.SendMessage($"Only {race.PluralName} may use this.");
+            }
+
+            return false;
+        }
+
         public virtual bool CanEquip(Mobile m) => m_Layer != Layer.Invalid && m.FindItemOnLayer(m_Layer) == null;
 
         public virtual void GetChildContextMenuEntries(Mobile from, List<ContextMenuEntry> list, Item item)
@@ -2308,18 +2357,12 @@ namespace Server
 
                 doubled = false;
 
-                if (m_Amount <= 1)
+                itemID = m_Amount switch
                 {
-                    itemID = coinBase;
-                }
-                else if (m_Amount <= 5)
-                {
-                    itemID = coinBase + 1;
-                }
-                else // m_Amount > 5
-                {
-                    itemID = coinBase + 2;
-                }
+                    <= 1 => coinBase,
+                    <= 5 => coinBase + 1,
+                    _    => coinBase + 2
+                };
             }
 
             var bounds = ItemBounds.Table[itemID & 0x3FFF];
