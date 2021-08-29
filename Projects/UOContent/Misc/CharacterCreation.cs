@@ -1162,7 +1162,7 @@ namespace Server.Misc
             {
                 var snv = skills[i];
 
-                if (snv.Value > 0 && (snv.Name != SkillName.Stealth || prof == 7) && snv.Name != SkillName.RemoveTrap &&
+                if (snv.Value > 0 && (snv.Name != SkillName.Stealth || prof == 7) /*&& snv.Name != SkillName.RemoveTrap*/ &&
                     snv.Name != SkillName.Spellweaving)
                 {
                     var skill = m.Skills[snv.Name];
