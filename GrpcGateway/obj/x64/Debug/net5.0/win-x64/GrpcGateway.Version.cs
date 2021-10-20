@@ -9,8 +9,8 @@
 //------------------------------------------------------------------------------
 
 [assembly: System.Reflection.AssemblyVersionAttribute("0.8.0.0")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("0.8.2.187")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.8.2+698fc227dd")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("0.8.2.188")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.8.2+6af6071d67")]
 #if NETSTANDARD || NETFRAMEWORK || NETCOREAPP
 [System.CodeDom.Compiler.GeneratedCode("Nerdbank.GitVersioning.Tasks","3.4.220.64166")]
 #endif
@@ -19,13 +19,13 @@
 #endif
 internal static partial class ThisAssembly {
     internal const string AssemblyConfiguration = "Debug";
-    internal const string AssemblyFileVersion = "0.8.2.187";
-    internal const string AssemblyInformationalVersion = "0.8.2+698fc227dd";
+    internal const string AssemblyFileVersion = "0.8.2.188";
+    internal const string AssemblyInformationalVersion = "0.8.2+6af6071d67";
     internal const string AssemblyName = "GrpcGateway";
     internal const string AssemblyTitle = "GrpcGateway";
     internal const string AssemblyVersion = "0.8.0.0";
-    internal static readonly System.DateTime GitCommitDate = new System.DateTime(637666211610000000L, System.DateTimeKind.Utc);
-    internal const string GitCommitId = "698fc227dd2ea626c69497c6955211e014411b84";
+    internal static readonly System.DateTime GitCommitDate = new System.DateTime(637666920680000000L, System.DateTimeKind.Utc);
+    internal const string GitCommitId = "6af6071d6735536bae1b47c8fafbae2c2fb8c0ba";
     internal const bool IsPrerelease = false;
     internal const bool IsPublicRelease = true;
     internal const string RootNamespace = "GrpcGateway";
