@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Server.Buffers;
 using Server.Commands;
 using Server.Commands.Generic;
 using Server.Gumps;
@@ -21,7 +22,6 @@ namespace Server.Commands
 
     public static class Properties
     {
-        private static readonly object[] m_ParseParams = new object[1];
 
         public static void Initialize()
         {
@@ -55,13 +55,69 @@ namespace Server.Commands
             }
         }
 
-        private static bool CIEqual(string l, string r) => l.InsensitiveEquals(r);
+        public static PropertyInfo GetPropertyInfoByName(
+            Mobile from, PropertyInfo[] props, string propertyName, PropertyAccess access, out string failReason
+        )
+        {
+            for (var i = 0; i < props.Length; i++)
+            {
+                var p = props[i];
+
+                if (!p.Name.InsensitiveEquals(propertyName))
+                {
+                    continue;
+                }
+
+                var attr = GetCPA(p);
+
+                if (attr == null)
+                {
+                    failReason = $"Property '${propertyName}' not found.";
+                    return null;
+                }
+
+                if ((access & PropertyAccess.Read) != 0 && from.AccessLevel < attr.ReadLevel)
+                {
+                    failReason =
+                        $"You must be at least {Mobile.GetAccessLevelName(attr.ReadLevel)} to get the property '{propertyName}'.";
+
+                    return null;
+                }
+
+                if ((access & PropertyAccess.Write) != 0 && from.AccessLevel < attr.WriteLevel)
+                {
+                    failReason =
+                        $"You must be at least {Mobile.GetAccessLevelName(attr.WriteLevel)} to set the property '{propertyName}'.";
+
+                    return null;
+                }
+
+                if ((access & PropertyAccess.Read) != 0 && !p.CanRead)
+                {
+                    failReason = $"Property '{propertyName}' is write only.";
+                    return null;
+                }
+
+                if ((access & PropertyAccess.Write) != 0 && (!p.CanWrite && !attr.CanModify || attr.ReadOnly))
+                {
+                    failReason = $"Property '{propertyName}' is read only.";
+                    return null;
+                }
+
+                failReason = null;
+                return p;
+            }
+
+            failReason = null;
+            return null;
+        }
 
         public static PropertyInfo[] GetPropertyInfoChain(
             Mobile from, Type type, string propertyString,
-            PropertyAccess endAccess, ref string failReason
+            PropertyAccess access, out string failReason
         )
         {
+            failReason = null;
             var split = propertyString.Split('.');
 
             if (split.Length == 0)
@@ -74,76 +130,18 @@ namespace Server.Commands
             for (var i = 0; i < info.Length; ++i)
             {
                 var propertyName = split[i];
-
-                if (CIEqual(propertyName, "current"))
-                {
-                    continue;
-                }
-
                 var props = type.GetProperties(BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
 
-                var isFinal = i == info.Length - 1;
+                var p = GetPropertyInfoByName(from, props, propertyName, access, out failReason);
 
-                var access = endAccess;
-
-                if (!isFinal)
+                if (p == null)
                 {
-                    access |= PropertyAccess.Read;
-                }
-
-                for (var j = 0; j < props.Length; ++j)
-                {
-                    var p = props[j];
-
-                    if (CIEqual(p.Name, propertyName))
-                    {
-                        var attr = GetCPA(p);
-
-                        if (attr == null)
-                        {
-                            failReason = $"Property '{propertyName}' not found.";
-                            return null;
-                        }
-
-                        if ((access & PropertyAccess.Read) != 0 && from.AccessLevel < attr.ReadLevel)
-                        {
-                            failReason =
-                                $"You must be at least {Mobile.GetAccessLevelName(attr.ReadLevel)} to get the property '{propertyName}'.";
-
-                            return null;
-                        }
-
-                        if ((access & PropertyAccess.Write) != 0 && from.AccessLevel < attr.WriteLevel)
-                        {
-                            failReason =
-                                $"You must be at least {Mobile.GetAccessLevelName(attr.WriteLevel)} to set the property '{propertyName}'.";
-
-                            return null;
-                        }
-
-                        if ((access & PropertyAccess.Read) != 0 && !p.CanRead)
-                        {
-                            failReason = $"Property '{propertyName}' is write only.";
-                            return null;
-                        }
-
-                        if ((access & PropertyAccess.Write) != 0 && (!p.CanWrite || attr.ReadOnly) && isFinal)
-                        {
-                            failReason = $"Property '{propertyName}' is read only.";
-                            return null;
-                        }
-
-                        info[i] = p;
-                        type = p.PropertyType;
-                        break;
-                    }
-                }
-
-                if (info[i] == null)
-                {
-                    failReason = $"Property '{propertyName}' not found.";
+                    failReason ??= $"Property '{propertyName}' not found.";
                     return null;
                 }
+
+                info[i] = p;
+                type = p.PropertyType;
             }
 
             return info;
@@ -151,15 +149,15 @@ namespace Server.Commands
 
         public static PropertyInfo GetPropertyInfo(
             Mobile from, ref object obj, string propertyName, PropertyAccess access,
-            ref string failReason
+            out string failReason
         )
         {
-            var chain = GetPropertyInfoChain(from, obj.GetType(), propertyName, access, ref failReason);
+            var chain = GetPropertyInfoChain(from, obj.GetType(), propertyName, access, out failReason);
 
-            return chain == null ? null : GetPropertyInfo(ref obj, chain, ref failReason);
+            return chain == null ? null : GetPropertyInfo(ref obj, chain, out failReason);
         }
 
-        public static PropertyInfo GetPropertyInfo(ref object obj, PropertyInfo[] chain, ref string failReason)
+        public static PropertyInfo GetPropertyInfo(ref object obj, PropertyInfo[] chain, out string failReason)
         {
             if (chain == null || chain.Length == 0)
             {
@@ -183,6 +181,7 @@ namespace Server.Commands
                 }
             }
 
+            failReason = null;
             return chain[^1];
         }
 
@@ -190,22 +189,20 @@ namespace Server.Commands
         {
             var failReason = "";
 
-            var chain = GetPropertyInfoChain(from, o.GetType(), name, PropertyAccess.Read, ref failReason);
+            var chain = GetPropertyInfoChain(from, o.GetType(), name, PropertyAccess.Read, out failReason);
 
             if (chain == null || chain.Length == 0)
             {
                 return failReason;
             }
 
-            var p = GetPropertyInfo(ref o, chain, ref failReason);
+            var p = GetPropertyInfo(ref o, chain, out failReason);
 
             return p == null ? failReason : InternalGetValue(o, p, chain);
         }
 
         public static string IncreaseValue(Mobile from, object o, string[] args)
         {
-            // Type type = o.GetType();
-
             var realObjs = new object[args.Length / 2];
             var realProps = new PropertyInfo[args.Length / 2];
             var realValues = new int[args.Length / 2];
@@ -248,9 +245,8 @@ namespace Server.Commands
                     return "Zero is not a valid value to offset.";
                 }
 
-                string failReason = null;
                 realObjs[i] = o;
-                realProps[i] = GetPropertyInfo(from, ref realObjs[i], name, PropertyAccess.ReadWrite, ref failReason);
+                realProps[i] = GetPropertyInfo(from, ref realObjs[i], name, PropertyAccess.ReadWrite, out var failReason);
 
                 if (failReason != null)
                 {
@@ -287,12 +283,7 @@ namespace Server.Commands
 
             if (realProps.Length == 1)
             {
-                if (positive)
-                {
-                    return "The property has been increased.";
-                }
-
-                return "The property has been decreased.";
+                return positive ? "The property has been increased." : "The property has been decreased.";
             }
 
             if (positive && negative)
@@ -300,12 +291,7 @@ namespace Server.Commands
                 return "The properties have been changed.";
             }
 
-            if (positive)
-            {
-                return "The properties have been increased.";
-            }
-
-            return "The properties have been decreased.";
+            return positive ? "The properties have been increased." : "The properties have been decreased.";
         }
 
         private static string InternalGetValue(object o, PropertyInfo p, PropertyInfo[] chain = null)
@@ -345,125 +331,29 @@ namespace Server.Commands
                 return $"{p.Name} = {toString}";
             }
 
-            var concat = new string[chain.Length * 2 + 1];
-
-            for (var i = 0; i < chain.Length; ++i)
+            using var builder = new ValueStringBuilder();
+            for (var i = 0; i < chain.Length; i++)
             {
-                concat[i * 2 + 0] = chain[i].Name;
-                concat[i * 2 + 1] = i < chain.Length - 1 ? "." : " = ";
+                builder.Append(chain[i].Name);
+                if (i < chain.Length - 1)
+                {
+                    builder.Append(".");
+                }
             }
 
-            concat[^1] = toString;
+            builder.Append(" = ");
+            builder.Append(toString);
 
-            return string.Concat(concat);
+            return builder.ToString();
         }
 
         public static string SetValue(Mobile from, object o, string name, string value)
         {
             var logObject = o;
 
-            var failReason = "";
-            var p = GetPropertyInfo(from, ref o, name, PropertyAccess.Write, ref failReason);
+            var p = GetPropertyInfo(from, ref o, name, PropertyAccess.Write, out var failReason);
 
             return p == null ? failReason : InternalSetValue(from, logObject, o, p, name, value, true);
-        }
-
-        private static object Parse(object o, Type t, string value)
-        {
-            var method = t.GetMethod("Parse", ParseTypes);
-
-            m_ParseParams[0] = value;
-
-            return method?.Invoke(o, m_ParseParams);
-        }
-
-        public static string ConstructFromString(Type type, object obj, string value, ref object constructed)
-        {
-            object toSet;
-            var isSerial = IsSerial(type);
-
-            if (isSerial) // mutate into int32
-            {
-                type = OfInt;
-            }
-
-            if (value == "(-null-)" && !type.IsValueType)
-            {
-                value = null;
-            }
-
-            if (IsEnum(type))
-            {
-                try
-                {
-                    toSet = Enum.Parse(type, value ?? "", true);
-                }
-                catch
-                {
-                    return "That is not a valid enumeration member.";
-                }
-            }
-            else if (IsType(type))
-            {
-                try
-                {
-                    toSet = AssemblyHandler.FindTypeByName(value);
-
-                    if (toSet == null)
-                    {
-                        return "No type with that name was found.";
-                    }
-                }
-                catch
-                {
-                    return "No type with that name was found.";
-                }
-            }
-            else if (IsParsable(type))
-            {
-                try
-                {
-                    toSet = Parse(obj, type, value);
-                }
-                catch
-                {
-                    return "That is not properly formatted.";
-                }
-            }
-            else if (value == null)
-            {
-                toSet = null;
-            }
-            else if (value.StartsWithOrdinal("0x") && IsNumeric(type))
-            {
-                try
-                {
-                    toSet = Convert.ChangeType(Convert.ToUInt64(value[2..], 16), type);
-                }
-                catch
-                {
-                    return "That is not properly formatted.";
-                }
-            }
-            else
-            {
-                try
-                {
-                    toSet = Convert.ChangeType(value, type);
-                }
-                catch
-                {
-                    return "That is not properly formatted.";
-                }
-            }
-
-            if (isSerial) // mutate back
-            {
-                toSet = (Serial)(toSet ?? Serial.MinusOne);
-            }
-
-            constructed = toSet;
-            return null;
         }
 
         public static string SetDirect(
@@ -475,16 +365,12 @@ namespace Server.Commands
             {
                 if (toSet is AccessLevel newLevel)
                 {
-                    var reqLevel = AccessLevel.Administrator;
-
-                    if (newLevel == AccessLevel.Administrator)
+                    var reqLevel = newLevel switch
                     {
-                        reqLevel = AccessLevel.Developer;
-                    }
-                    else if (newLevel >= AccessLevel.Developer)
-                    {
-                        reqLevel = AccessLevel.Owner;
-                    }
+                        AccessLevel.Administrator => AccessLevel.Developer,
+                        >= AccessLevel.Developer  => AccessLevel.Owner,
+                        _                         => AccessLevel.Administrator
+                    };
 
                     if (from.AccessLevel < reqLevel)
                     {
@@ -511,43 +397,12 @@ namespace Server.Commands
             }
         }
 
-        public static string SetDirect(object obj, PropertyInfo prop, object toSet)
-        {
-            try
-            {
-                if (toSet is AccessLevel)
-                {
-                    return "You do not have access to that level.";
-                }
-
-                prop.SetValue(obj, toSet, null);
-                return "Property has been set.";
-            }
-            catch
-            {
-                return "An exception was caught, the property may not be set.";
-            }
-        }
-
         public static string InternalSetValue(
             Mobile from, object logobj, object o, PropertyInfo p, string pname,
             string value, bool shouldLog
-        )
-        {
-            object toSet = null;
-            var result = ConstructFromString(p.PropertyType, o, value, ref toSet);
-
-            return result ?? SetDirect(from, logobj, o, p, pname, toSet, shouldLog);
-        }
-
-        public static string InternalSetValue(object o, PropertyInfo p, string value)
-        {
-            object toSet = null;
-            var result = ConstructFromString(p.PropertyType, o, value, ref toSet);
-
-            return result ?? SetDirect(o, p, toSet);
-        }
-
+        ) =>
+            TryParse(p.PropertyType, value, out var toSet) ??
+            SetDirect(from, logobj, o, p, pname, toSet, shouldLog);
 
         private class PropsTarget : Target
         {

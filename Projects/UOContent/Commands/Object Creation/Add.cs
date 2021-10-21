@@ -13,8 +13,6 @@ namespace Server.Commands
 {
     public static class Add
     {
-        private static readonly object[] m_ParseArgs = new object[1];
-
         public static void Initialize()
         {
             CommandSystem.Register("Tile", AccessLevel.GameMaster, Tile_OnCommand);
@@ -151,46 +149,16 @@ namespace Server.Commands
 
                 for (var i = 0; i < realProps.Length; ++i)
                 {
-                    PropertyInfo thisProp = null;
-
                     var propName = props[i, 0];
+                    var thisProp = Properties.GetPropertyInfoByName(from, allProps, propName, PropertyAccess.Write, out var failReason);
 
-                    for (var j = 0; thisProp == null && j < allProps.Length; ++j)
+                    if (failReason == null)
                     {
-                        if (propName.InsensitiveEquals(allProps[j].Name))
-                        {
-                            thisProp = allProps[j];
-                        }
-                    }
-
-                    if (thisProp == null)
-                    {
-                        from.SendMessage("Property not found: {0}", propName);
+                        realProps[i] = thisProp;
                     }
                     else
                     {
-                        var attr = GetCPA(thisProp);
-
-                        if (attr == null)
-                        {
-                            from.SendMessage("Property ({0}) not found.", propName);
-                        }
-                        else if (from.AccessLevel < attr.WriteLevel)
-                        {
-                            from.SendMessage(
-                                "Setting this property ({0}) requires at least {1} access level.",
-                                propName,
-                                Mobile.GetAccessLevelName(attr.WriteLevel)
-                            );
-                        }
-                        else if (!thisProp.CanWrite || attr.ReadOnly)
-                        {
-                            from.SendMessage("Property ({0}) is read only.", propName);
-                        }
-                        else
-                        {
-                            realProps[i] = thisProp;
-                        }
+                        from.SendMessage(failReason);
                     }
                 }
             }
@@ -245,7 +213,7 @@ namespace Server.Commands
             for (int i = 0, a = 0; i < paramList.Length; i++)
             {
                 var param = paramList[i];
-                var value = ParseValue(param.ParameterType, a < args.Length ? args[a++] : null);
+                TryParse(param.ParameterType, a < args.Length ? args[a++] : null, out var value);
 
                 if (value != null)
                 {
@@ -262,56 +230,6 @@ namespace Server.Commands
             }
 
             return values;
-        }
-
-        public static object ParseValue(Type type, string value)
-        {
-            try
-            {
-                if (IsEnum(type))
-                {
-                    return Enum.Parse(type, value, true);
-                }
-
-                if (IsType(type))
-                {
-                    return AssemblyHandler.FindTypeByName(value);
-                }
-
-                if (IsParsable(type))
-                {
-                    return ParseParsable(type, value);
-                }
-
-                object obj = value;
-
-                if (value.StartsWithOrdinal("0x"))
-                {
-                    if (IsSignedNumeric(type))
-                    {
-                        obj = Convert.ToInt64(value[2..], 16);
-                    }
-                    else if (IsUnsignedNumeric(type))
-                    {
-                        obj = Convert.ToUInt64(value[2..], 16);
-                    }
-                    else
-                    {
-                        obj = Convert.ToInt32(value[2..], 16);
-                    }
-                }
-
-                if (obj == null && !type.IsValueType)
-                {
-                    return null;
-                }
-
-                return Convert.ChangeType(obj, type);
-            }
-            catch
-            {
-                return null;
-            }
         }
 
         public static IEntity Build(
@@ -733,21 +651,6 @@ namespace Server.Commands
         public static void OutlineAvg_OnCommand(CommandEventArgs e)
         {
             InternalAvg_OnCommand(e, true);
-        }
-
-        public static bool IsEnum(Type type) => type.IsSubclassOf(OfEnum);
-
-        public static bool IsType(Type type) => type == OfType || type.IsSubclassOf(OfType);
-
-        public static bool IsParsable(Type type) => type.IsDefined(OfParsable, false);
-
-        public static object ParseParsable(Type type, string value)
-        {
-            var method = type.GetMethod("Parse", ParseTypes);
-
-            m_ParseArgs[0] = value;
-
-            return method?.Invoke(null, m_ParseArgs);
         }
 
         private enum TileZType
