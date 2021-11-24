@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "KPp+59BU+iIPrDj7jAOFZ7Imnrvgp2N7xaq6NMtlSbhoSXWgjhVdSzGVfrAnXv1XBBqlHkEqzW7IoaUvgvXKdA==",
+  "dgSpecHash": "hBOe0kDnTv+WzufTxCFxNoULqd8dPRnf0tXLrX2+UdyqEAPivU8w7N35BhZRpxv9gJeL8aEpO8XUhCbtoMvIhg==",
   "success": true,
   "projectFilePath": "C:\\Users\\wewan\\Documents\\GitHub\\DefianceUOR\\GrpcGateway\\GrpcGateway.csproj",
   "expectedPackageFiles": [
@@ -15,15 +15,16 @@
     "C:\\Users\\wewan\\.nuget\\packages\\serilog.sinks.async\\1.5.0\\serilog.sinks.async.1.5.0.nupkg.sha512",
     "C:\\Users\\wewan\\.nuget\\packages\\serilog.sinks.console\\4.0.0\\serilog.sinks.console.4.0.0.nupkg.sha512",
     "C:\\Users\\wewan\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-x64\\5.0.7\\microsoft.netcore.app.runtime.linux-x64.5.0.7.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.host.linux-x64\\5.0.7\\microsoft.netcore.app.host.linux-x64.5.0.7.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\5.0.7\\microsoft.netcore.app.runtime.win-x64.5.0.7.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\5.0.7\\microsoft.aspnetcore.app.runtime.win-x64.5.0.7.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.runtime.osx-x64\\5.0.7\\microsoft.netcore.app.runtime.osx-x64.5.0.7.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\5.0.7\\microsoft.windowsdesktop.app.runtime.win-x64.5.0.7.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.osx-x64\\5.0.7\\microsoft.aspnetcore.app.runtime.osx-x64.5.0.7.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.host.osx-x64\\5.0.7\\microsoft.netcore.app.host.osx-x64.5.0.7.nupkg.sha512",
-    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-x64\\5.0.7\\microsoft.aspnetcore.app.runtime.linux-x64.5.0.7.nupkg.sha512"
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-x64\\5.0.12\\microsoft.netcore.app.runtime.linux-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.12\\microsoft.netcore.app.host.win-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.host.linux-x64\\5.0.12\\microsoft.netcore.app.host.linux-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\5.0.12\\microsoft.netcore.app.runtime.win-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\5.0.12\\microsoft.aspnetcore.app.runtime.win-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.runtime.osx-x64\\5.0.12\\microsoft.netcore.app.runtime.osx-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\5.0.12\\microsoft.windowsdesktop.app.runtime.win-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.osx-x64\\5.0.12\\microsoft.aspnetcore.app.runtime.osx-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.netcore.app.host.osx-x64\\5.0.12\\microsoft.netcore.app.host.osx-x64.5.0.12.nupkg.sha512",
+    "C:\\Users\\wewan\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-x64\\5.0.12\\microsoft.aspnetcore.app.runtime.linux-x64.5.0.12.nupkg.sha512"
   ],
   "logs": []
 }

@@ -18,3 +18,4 @@ C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\GrpcGateway.dll
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\ref\GrpcGateway.dll
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\GrpcGateway.pdb
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\GrpcGateway.csproj.AssemblyReference.cache
