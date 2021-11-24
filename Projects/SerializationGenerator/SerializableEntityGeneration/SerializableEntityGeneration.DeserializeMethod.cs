@@ -33,7 +33,6 @@ namespace SerializationGenerator
             int version,
             bool encodedVersion,
             ImmutableArray<SerializableMetadata> migrations,
-            ImmutableArray<SerializableProperty> fields,
             ImmutableArray<SerializableProperty> properties,
             ISymbol parentFieldOrProperty,
             SortedDictionary<int, SerializableFieldSaveFlagMethods> serializableFieldSaveFlagMethodsDictionary
@@ -125,11 +124,10 @@ namespace SerializationGenerator
                 source.AppendLine($"{bodyIndent}var saveFlags = reader.ReadEnum<SaveFlag>();");
             }
 
-            for (var i = 0; i < properties.Length; i++)
+            foreach (var property in properties)
             {
-                var field = fields[i];
-                var property = properties[i];
                 var rule = SerializableMigrationRulesEngine.Rules[property.Rule];
+
 
                 if (serializableFieldSaveFlagMethodsDictionary.TryGetValue(
                     property.Order,
@@ -140,7 +138,7 @@ namespace SerializationGenerator
                     // Special case
                     if (property.Type == "bool")
                     {
-                        source.AppendLine($"{bodyIndent}{field.Name} = (saveFlags & SaveFlag.{property.Name}) != 0;");
+                        source.AppendLine($"{bodyIndent}{property.Name} = (saveFlags & SaveFlag.{property.Name}) != 0;");
                     }
                     else
                     {
@@ -148,22 +146,16 @@ namespace SerializationGenerator
                         rule.GenerateDeserializationMethod(
                             source,
                             innerIndent,
-                            field,
+                            property,
                             parentFieldOrProperty?.Name ?? "this"
                         );
-                        (rule as IPostDeserializeMethod)?.PostDeserializeMethod(
-                            source,
-                            innerIndent,
-                            field,
-                            compilation,
-                            classSymbol
-                        );
+                        (rule as IPostDeserializeMethod)?.PostDeserializeMethod(source, innerIndent, property, compilation, classSymbol);
 
                         if (serializableFieldSaveFlagMethods.GetFieldDefaultValue != null)
                         {
                             source.AppendLine($"{bodyIndent}}}\n{bodyIndent}else\n{bodyIndent}{{");
                             source.AppendLine(
-                                $"{bodyIndent}    {field.Name} = {serializableFieldSaveFlagMethods.GetFieldDefaultValue.Name}();"
+                                $"{bodyIndent}    {property.Name} = {serializableFieldSaveFlagMethods.GetFieldDefaultValue.Name}();"
                             );
                         }
 
@@ -176,16 +168,10 @@ namespace SerializationGenerator
                     rule.GenerateDeserializationMethod(
                         source,
                         bodyIndent,
-                        field,
+                        property,
                         parentFieldOrProperty?.Name ?? "this"
                     );
-                    (rule as IPostDeserializeMethod)?.PostDeserializeMethod(
-                        source,
-                        bodyIndent,
-                        field,
-                        compilation,
-                        classSymbol
-                    );
+                    (rule as IPostDeserializeMethod)?.PostDeserializeMethod(source, bodyIndent, property, compilation, classSymbol);
                 }
             }
 

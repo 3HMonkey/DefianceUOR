@@ -31,7 +31,7 @@ namespace Server.Engines.BulkOrders
         [SerializableFieldAttr("[CommandProperty(AccessLevel.GameMaster)]")]
         private bool _requireExceptional;
 
-        [SerializableField(2)]
+        [SerializableField(1)]
         [InvalidateProperties]
         [SerializableFieldAttr("[CommandProperty(AccessLevel.GameMaster)]")]
         private BulkMaterialType _material;

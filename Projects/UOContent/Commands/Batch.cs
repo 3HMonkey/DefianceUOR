@@ -76,56 +76,66 @@ namespace Server.Commands
                         CommandLogging.Enabled = false;
                     }
 
-                    var propertyChains = new Dictionary<Type, PropertyInfo[]>();
-                    var usedList = new List<object>(list.Count);
+                    List<object> usedList;
 
-                    for (var j = 0; j < list.Count; ++j)
+                    if (Utility.InsensitiveCompare(bc.Object, "Current") == 0)
                     {
-                        var obj = list[j];
+                        usedList = list;
+                    }
+                    else
+                    {
+                        var propertyChains = new Dictionary<Type, PropertyInfo[]>();
 
-                        if (obj == null)
+                        usedList = new List<object>(list.Count);
+
+                        for (var j = 0; j < list.Count; ++j)
                         {
-                            continue;
-                        }
+                            var obj = list[j];
 
-                        var type = obj.GetType();
-                        var failReason = "";
-
-                        if (!propertyChains.TryGetValue(type, out var chain))
-                        {
-                            propertyChains[type] = chain = Properties.GetPropertyInfoChain(
-                                e.Mobile,
-                                type,
-                                bc.Object,
-                                PropertyAccess.Read,
-                                out failReason
-                            );
-                        }
-
-                        if (chain == null)
-                        {
-                            continue;
-                        }
-
-                        var endProp = Properties.GetPropertyInfo(ref obj, chain, out failReason);
-
-                        if (endProp == null)
-                        {
-                            continue;
-                        }
-
-                        try
-                        {
-                            obj = endProp.GetValue(obj, null);
-
-                            if (obj != null)
+                            if (obj == null)
                             {
-                                usedList.Add(obj);
+                                continue;
                             }
-                        }
-                        catch
-                        {
-                            // ignored
+
+                            var type = obj.GetType();
+                            var failReason = "";
+
+                            if (!propertyChains.TryGetValue(type, out var chain))
+                            {
+                                propertyChains[type] = chain = Properties.GetPropertyInfoChain(
+                                    e.Mobile,
+                                    type,
+                                    bc.Object,
+                                    PropertyAccess.Read,
+                                    ref failReason
+                                );
+                            }
+
+                            if (chain == null)
+                            {
+                                continue;
+                            }
+
+                            var endProp = Properties.GetPropertyInfo(ref obj, chain, ref failReason);
+
+                            if (endProp == null)
+                            {
+                                continue;
+                            }
+
+                            try
+                            {
+                                obj = endProp.GetValue(obj, null);
+
+                                if (obj != null)
+                                {
+                                    usedList.Add(obj);
+                                }
+                            }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
                     }
 

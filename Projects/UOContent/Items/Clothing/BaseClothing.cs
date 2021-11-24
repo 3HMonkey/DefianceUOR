@@ -25,11 +25,8 @@ namespace Server.Items
     [Serializable(6, false)]
     public abstract partial class BaseClothing : Item, IDyable, IScissorable, IFactionItem, ICraftable, IWearableDurability
     {
-        [SerializableField(0, "private", "private")]
-        private CraftResource _rawResource;
-
-        [SerializableFieldSaveFlag(0)]
-        private bool ShouldSerializeResource() => _rawResource != DefaultResource;
+        // Field 0
+        private CraftResource _resource;
 
         [SerializableField(1, setter: "private")]
         [SerializableFieldAttr("[CommandProperty(AccessLevel.GameMaster, canModify: true)]")]
@@ -116,7 +113,7 @@ namespace Server.Items
             Layer = layer;
             Hue = hue;
 
-            _rawResource = DefaultResource;
+            _resource = DefaultResource;
 
             _hitPoints = _maxHitPoints = Utility.RandomMinMax(InitMinHits, InitMaxHits);
 
@@ -126,18 +123,22 @@ namespace Server.Items
             Resistances = new AosElementAttributes(this);
         }
 
+        [SerializableField(0)]
         [CommandProperty(AccessLevel.GameMaster)]
         public CraftResource Resource
         {
-            get => _rawResource;
+            get => _resource;
             set
             {
-                RawResource = value;
-                Hue = CraftResources.GetHue(_rawResource);
+                _resource = value;
+                Hue = CraftResources.GetHue(_resource);
                 InvalidateProperties();
                 this.MarkDirty();
             }
         }
+
+        [SerializableFieldSaveFlag(0)]
+        private bool ShouldSerializeResource() => _resource != DefaultResource;
 
         [SerializableField(10)]
         [CommandProperty(AccessLevel.GameMaster)]
@@ -274,7 +275,7 @@ namespace Server.Items
             {
                 try
                 {
-                    var info = CraftResources.GetInfo(_rawResource);
+                    var info = CraftResources.GetInfo(_resource);
 
                     var resourceType = info.ResourceTypes?[0] ?? item.Resources[0].ItemType;
 
@@ -624,7 +625,7 @@ namespace Server.Items
 
         public override void OnAfterDuped(Item newItem)
         {
-            if (newItem is not BaseClothing clothing)
+            if (!(newItem is BaseClothing clothing))
             {
                 return;
             }
@@ -657,7 +658,7 @@ namespace Server.Items
 
         public override void AddNameProperty(ObjectPropertyList list)
         {
-            var oreType = _rawResource switch
+            var oreType = _resource switch
             {
                 CraftResource.DullCopper    => 1053108,
                 CraftResource.ShadowIron    => 1053107,
@@ -970,11 +971,11 @@ namespace Server.Items
 
             if (GetSaveFlag(flags, OldSaveFlag.Resource))
             {
-                _rawResource = (CraftResource)reader.ReadEncodedInt();
+                _resource = (CraftResource)reader.ReadEncodedInt();
             }
             else
             {
-                _rawResource = DefaultResource;
+                _resource = DefaultResource;
             }
 
             Attributes = new AosAttributes(this);

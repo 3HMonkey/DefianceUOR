@@ -171,6 +171,7 @@ namespace SerializationGenerator
             var indent = "    ";
 
             source.RecursiveGenerateClassStart(classSymbol, interfaces.ToImmutableArray(), ref indent);
+            indent += "    ";
 
             source.GenerateClassField(
                 indent,
@@ -190,7 +191,7 @@ namespace SerializationGenerator
                     ) != null
             ) : null;
 
-            var serializablePropertySet = new SortedDictionary<SerializableProperty, ISymbol>(new SerializablePropertyComparer());
+            var serializablePropertySet = new SortedSet<SerializableProperty>(new SerializablePropertyComparer());
 
             foreach (var fieldOrPropertySymbol in fieldsAndProperties)
             {
@@ -224,12 +225,12 @@ namespace SerializationGenerator
 
                     if (attrTypeArg.Kind == TypedConstantKind.Primitive && attrTypeArg.Value is string attrStr)
                     {
-                        source.AppendLine($"{indent}{attrStr}");
+                        source.AppendLine($"{indent}    {attrStr}");
                     }
                     else
                     {
                         var attrType = (ITypeSymbol)attrTypeArg.Value;
-                        source.GenerateAttribute(indent, attrType?.Name, ctorArgs[1].Values);
+                        source.GenerateAttribute(attrType?.Name, ctorArgs[1].Values);
                     }
                 }
 
@@ -244,7 +245,6 @@ namespace SerializationGenerator
                 {
                     source.GenerateSerializableProperty(
                         compilation,
-                        indent,
                         fieldSymbol,
                         getterAccessor,
                         setterAccessor,
@@ -267,16 +267,10 @@ namespace SerializationGenerator
                     serializableFieldSaveFlagMethods
                 );
 
-                serializablePropertySet.Add(serializableProperty, fieldOrPropertySymbol);
+                serializablePropertySet.Add(serializableProperty);
             }
 
-            var serializableFields = serializablePropertySet.Keys.ToImmutableArray();
-            var serializableProperties = serializablePropertySet.Select(
-                kvp => kvp.Key with
-                {
-                    Name = (kvp.Value as IFieldSymbol)?.GetPropertyName() ?? ((IPropertySymbol)kvp.Value).Name
-                }
-            ).ToImmutableArray();
+            var serializableProperties = serializablePropertySet.ToImmutableArray();
 
             // If we are not inheriting ISerializable, then we need to define some stuff
             if (!(isOverride || embedded))
@@ -329,7 +323,6 @@ namespace SerializationGenerator
                 indent,
                 isOverride,
                 encodedVersion,
-                serializableFields,
                 serializableProperties,
                 serializableFieldSaveFlags
             );
@@ -344,7 +337,6 @@ namespace SerializationGenerator
                 version,
                 encodedVersion,
                 migrations,
-                serializableFields,
                 serializableProperties,
                 parentFieldOrProperty,
                 serializableFieldSaveFlags
@@ -365,12 +357,13 @@ namespace SerializationGenerator
                 int index = 0;
                 foreach (var (order, _) in serializableFieldSaveFlags)
                 {
-                    source.GenerateEnumValue($"{indent}        ", true, serializableProperties[order].Name, index++);
+                    source.GenerateEnumValue($"{indent}    ", true, serializableProperties[order].Name, index++);
                 }
 
                 source.GenerateEnumEnd($"{indent}    ");
             }
 
+            indent = indent.Substring(0, indent.Length - 4);
             source.RecursiveGenerateClassEnd(classSymbol, ref indent);
             source.GenerateNamespaceEnd();
 
@@ -426,8 +419,8 @@ namespace SerializationGenerator
         {
             do
             {
-                indent = indent.Substring(0, indent.Length - 4);
                 source.GenerateClassEnd(indent);
+                indent = indent.Substring(0, indent.Length - 4);
 
                 classSymbol = classSymbol.ContainingSymbol as INamedTypeSymbol;
             } while (classSymbol != null);

@@ -763,7 +763,7 @@ namespace Server.Items
             {
                 if (Core.ML)
                 {
-                    if (ParentsContain<BankBox>()) // Root Parent is the Mobile. Parent could be another container.
+                    if (ParentsContain<BankBox>()) // Root Parent is the Mobile.  Parent could be another containter.
                     {
                         list.Add(
                             1073841, // Contents: ~1_COUNT~/~2_MAXCOUNT~ items, ~3_WEIGHT~ stones

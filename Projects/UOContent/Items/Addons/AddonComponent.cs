@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using Server.ContextMenus;
 using Server.Engines.Craft;
 
 namespace Server.Items
@@ -143,7 +141,10 @@ namespace Server.Items
             }
         }
 
-        public override void OnDoubleClick(Mobile from) => _addon?.OnComponentUsed(this, from);
+        public override void OnDoubleClick(Mobile from)
+        {
+            _addon?.OnComponentUsed(this, from);
+        }
 
         public override void OnLocationChange(Point3D old)
         {
@@ -160,12 +161,7 @@ namespace Server.Items
                 _addon.Map = Map;
             }
         }
-/*
-        public override void GetProperties(ObjectPropertyList list) => _addon?.GetProperties(list);
 
-        public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list) =>
-            _addon?.GetContextMenuEntries(from, list);
-*/
         public override void OnAfterDelete()
         {
             base.OnAfterDelete();
@@ -190,7 +186,7 @@ namespace Server.Items
 
         public static void ApplyLightTo(Item item)
         {
-            if (!item.ItemData.LightSource)
+            if ((item.ItemData.Flags & TileFlag.LightSource) == 0)
             {
                 return; // not a light source
             }

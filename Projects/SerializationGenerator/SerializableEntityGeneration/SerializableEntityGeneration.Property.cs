@@ -24,7 +24,6 @@ namespace SerializationGenerator
         public static void GenerateSerializableProperty(
             this StringBuilder source,
             Compilation compilation,
-            string indent,
             IFieldSymbol fieldSymbol,
             Accessibility getter,
             Accessibility? setter,
@@ -44,8 +43,9 @@ namespace SerializationGenerator
                     ) ?? false
                 );
 
-            var propertyIndent = $"{indent}    ";
-            var innerIndent = $"{propertyIndent}    ";
+            const string indent = "        ";
+            const string innerIndent = "                ";
+            const string propertyIndent = "            ";
 
             var propertyAccessor = setter > getter ? setter : getter;
             var getterAccessor = getter == propertyAccessor ? Accessibility.NotApplicable : getter;

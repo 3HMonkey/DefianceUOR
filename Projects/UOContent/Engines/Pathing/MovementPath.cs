@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Server.Items;
 using Server.PathAlgorithms;
 using Server.PathAlgorithms.FastAStar;
+using Server.PathAlgorithms.SlowAStar;
 using Server.Spells;
 using Server.Targeting;
 
@@ -88,21 +89,18 @@ namespace Server
                 var y = from.Y;
                 var z = from.Z;
 
-                WayPoint waypoint = null;
-
                 for (var i = 0; i < path.Directions.Length; ++i)
                 {
                     Movement.Movement.Offset(path.Directions[i], ref x, ref y);
 
-                    waypoint = new WayPoint(waypoint);
-                    waypoint.MoveToWorld(new Point3D(x, y, z + zOffset), from.Map);
+                    new RecallRune().MoveToWorld(new Point3D(x, y, z + zOffset), from.Map);
                 }
             }
         }
 
         public static void Path_OnTarget(Mobile from, object targeted)
         {
-            if (targeted is not IPoint3D p)
+            if (!(targeted is IPoint3D p))
             {
                 return;
             }
@@ -110,6 +108,7 @@ namespace Server
             SpellHelper.GetSurfaceTop(ref p);
 
             Path(from, p, FastAStarAlgorithm.Instance, "Fast", 0);
+            Path(from, p, SlowAStarAlgorithm.Instance, "Slow", 2);
             OverrideAlgorithm = null;
         }
     }

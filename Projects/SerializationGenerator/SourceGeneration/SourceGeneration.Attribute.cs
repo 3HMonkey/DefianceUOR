@@ -21,14 +21,9 @@ namespace SerializationGenerator
 {
     public static partial class SourceGeneration
     {
-        public static void GenerateAttribute(
-            this StringBuilder source,
-            string indent,
-            string attrClassName,
-            ImmutableArray<TypedConstant> args
-        )
+        public static void GenerateAttribute(this StringBuilder source, string attrClassName, ImmutableArray<TypedConstant> args)
         {
-            source.Append($"{indent}[{attrClassName}");
+            source.Append($"        [{attrClassName}");
             var hasArgs = args.Length > 0;
 
             if (hasArgs)

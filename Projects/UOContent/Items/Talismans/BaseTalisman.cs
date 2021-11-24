@@ -975,6 +975,7 @@ namespace Server.Items
 
             m_Blessed = GetSaveFlag(flags, SaveFlag.Blessed);
 
+
             if (Parent is Mobile m)
             {
                 Attributes.AddStatBonuses(m);

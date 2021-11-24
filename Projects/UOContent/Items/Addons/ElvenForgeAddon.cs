@@ -9,7 +9,6 @@ namespace Server.Items
             AddComponent(new AddonComponent(0x2DD8), 0, 0, 0);
         }
 
-        public override int LabelNumber => 1072875; // elven forge
         public override BaseAddonDeed Deed => new ElvenForgeDeed();
     }
 
@@ -22,6 +21,6 @@ namespace Server.Items
         }
 
         public override BaseAddon Addon => new ElvenForgeAddon();
-        public override int LabelNumber => 1072875; // elven forge
+        public override int LabelNumber => 1072875; // squirrel statue (east)
     }
 }

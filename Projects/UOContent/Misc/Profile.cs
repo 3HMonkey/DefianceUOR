@@ -69,24 +69,24 @@ namespace Server.Misc
                 return "";
             }
 
-            var age = a.AccountAge;
+            var ts = Core.Now - a.Created;
 
-            if (Format(age.TotalDays, "This account is {0} day{1} old.", out var v))
+            if (Format(ts.TotalDays, "This account is {0} day{1} old.", out var v))
             {
                 return v;
             }
 
-            if (Format(age.TotalHours, "This account is {0} hour{1} old.", out v))
+            if (Format(ts.TotalHours, "This account is {0} hour{1} old.", out v))
             {
                 return v;
             }
 
-            if (Format(age.TotalMinutes, "This account is {0} minute{1} old.", out v))
+            if (Format(ts.TotalMinutes, "This account is {0} minute{1} old.", out v))
             {
                 return v;
             }
 
-            if (Format(age.TotalSeconds, "This account is {0} second{1} old.", out v))
+            if (Format(ts.TotalSeconds, "This account is {0} second{1} old.", out v))
             {
                 return v;
             }

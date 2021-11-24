@@ -515,7 +515,8 @@ namespace Server.Mobiles
         {
             if (from.Account is Account acct && from.AccessLevel == AccessLevel.Player)
             {
-                var time = TimeSpan.FromDays(RewardSystem.RewardInterval.TotalDays * 6) - acct.AccountAge;
+                var time = TimeSpan.FromDays(RewardSystem.RewardInterval.TotalDays * 6) -
+                           (Core.Now - acct.Created);
 
                 if (time > TimeSpan.Zero)
                 {

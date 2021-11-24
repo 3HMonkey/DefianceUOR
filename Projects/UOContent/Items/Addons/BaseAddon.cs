@@ -23,8 +23,7 @@ namespace Server.Items
     [Serializable(3, false)]
     public abstract partial class BaseAddon : Item, IChoppable, IAddon
     {
-        [SerializableField(1, "private", "private")]
-        private CraftResource _rawResource;
+        private CraftResource _resource;
 
         public BaseAddon() : base(1)
         {
@@ -66,15 +65,16 @@ namespace Server.Items
         }
 
         [CommandProperty(AccessLevel.GameMaster)]
+        [SerializableField(1)]
         public CraftResource Resource
         {
-            get => _rawResource;
+            get => _resource;
             set
             {
-                if (_rawResource != value)
+                if (_resource != value)
                 {
-                    RawResource = value;
-                    Hue = CraftResources.GetHue(_rawResource);
+                    _resource = value;
+                    Hue = CraftResources.GetHue(_resource);
 
                     InvalidateProperties();
                     this.MarkDirty();
@@ -284,7 +284,7 @@ namespace Server.Items
 
             if (version == 2)
             {
-                _rawResource = (CraftResource)reader.ReadEncodedInt();
+                _resource = (CraftResource)reader.ReadEncodedInt();
             }
         }
     }

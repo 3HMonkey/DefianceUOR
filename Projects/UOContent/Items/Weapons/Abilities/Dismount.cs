@@ -44,8 +44,8 @@ namespace Server.Items
                 return;
             }
 
-            // TODO: Should there be a message here?
-            if (attacker.Mounted && (attacker.Weapon is not Lance || defender.Weapon is not Lance))
+            if (attacker.Mounted && (!(attacker.Weapon is Lance) || !(defender.Weapon is Lance))
+            ) // TODO: Should there be a message here?
             {
                 return;
             }
@@ -101,9 +101,12 @@ namespace Server.Items
             {
                 playerMobile.SetMountBlock(BlockMountType.DismountRecovery, RemountDelay, true);
             }
-            else if (Core.ML && attacker is BaseCreature { ControlMaster: PlayerMobile pm })
+            else if (Core.ML && attacker is BaseCreature bc)
             {
-                pm.SetMountBlock(BlockMountType.DismountRecovery, RemountDelay, false);
+                if (bc.ControlMaster is PlayerMobile pm)
+                {
+                    pm.SetMountBlock(BlockMountType.DismountRecovery, RemountDelay, false);
+                }
             }
 
             if (!attacker.Mounted)

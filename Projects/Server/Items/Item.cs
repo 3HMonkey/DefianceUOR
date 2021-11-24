@@ -771,12 +771,6 @@ namespace Server
             AddNameProperties(list);
         }
 
-        [CommandProperty(AccessLevel.GameMaster, readOnly: true)]
-        public DateTime Created { get; set; } = Core.Now;
-
-        [CommandProperty(AccessLevel.GameMaster)]
-        DateTime ISerializable.LastSerialized { get; set; } = Core.Now;
-
         long ISerializable.SavePosition { get; set; } = -1;
 
         BufferWriter ISerializable.SaveBuffer { get; set; }
@@ -796,12 +790,12 @@ namespace Server
 
             if (x != 0 || y != 0 || z != 0)
             {
-                if (x is >= short.MinValue and <= short.MaxValue && y is >= short.MinValue and <= short.MaxValue &&
-                    z is >= sbyte.MinValue and <= sbyte.MaxValue)
+                if (x >= short.MinValue && x <= short.MaxValue && y >= short.MinValue && y <= short.MaxValue &&
+                    z >= sbyte.MinValue && z <= sbyte.MaxValue)
                 {
                     if (x != 0 || y != 0)
                     {
-                        if (x is >= byte.MinValue and <= byte.MaxValue && y is >= byte.MinValue and <= byte.MaxValue)
+                        if (x >= byte.MinValue && x <= byte.MaxValue && y >= byte.MinValue && y <= byte.MaxValue)
                         {
                             flags |= SaveFlag.LocationByteXY;
                         }
@@ -1291,7 +1285,7 @@ namespace Server
             var worldLoc = GetWorldLocation();
             var update = (flags & ItemDelta.Update) != 0;
 
-            if (update && m_Parent is Container { IsPublicContainer: false } contParent)
+            if (update && m_Parent is Container contParent && !contParent.IsPublicContainer)
             {
                 var rootParent = contParent.RootParent as Mobile;
                 Mobile tradeRecip = null;
@@ -1338,36 +1332,39 @@ namespace Server
 
                 if (openers != null)
                 {
-                    for (var i = 0; i < openers.Count; ++i)
+                    lock (openers)
                     {
-                        var mob = openers[i];
-
-                        var range = GetUpdateRange(mob);
-
-                        if (mob.Map != map || !mob.InRange(worldLoc, range))
+                        for (var i = 0; i < openers.Count; ++i)
                         {
-                            openers.RemoveAt(i--);
+                            var mob = openers[i];
+
+                            var range = GetUpdateRange(mob);
+
+                            if (mob.Map != map || !mob.InRange(worldLoc, range))
+                            {
+                                openers.RemoveAt(i--);
+                            }
+                            else
+                            {
+                                if (mob == rootParent || mob == tradeRecip)
+                                {
+                                    continue;
+                                }
+
+                                var ns = mob.NetState;
+
+                                if (ns != null && mob.CanSee(this))
+                                {
+                                    ns.SendContainerContentUpdate(this);
+                                    SendOPLPacketTo(ns);
+                                }
+                            }
                         }
-                        else
+
+                        if (openers.Count == 0)
                         {
-                            if (mob == rootParent || mob == tradeRecip)
-                            {
-                                continue;
-                            }
-
-                            var ns = mob.NetState;
-
-                            if (ns != null && mob.CanSee(this))
-                            {
-                                ns.SendContainerContentUpdate(this);
-                                SendOPLPacketTo(ns);
-                            }
+                            contParent.Openers = null;
                         }
-                    }
-
-                    if (openers.Count == 0)
-                    {
-                        contParent.Openers = null;
                     }
                 }
 
@@ -1722,7 +1719,6 @@ namespace Server
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool GetFlag(ImplFlag flag) => (m_Flags & flag) != 0;
 
         public BounceInfo GetBounce() => LookupCompactInfo()?.m_Bounce;
@@ -1752,9 +1748,12 @@ namespace Server
                     parentItem.OnItemBounceCleared(this);
                 }
             }
-            else if (bounce.Parent is Mobile { Deleted: false } parentMobile)
+            else if (bounce.Parent is Mobile parentMobile)
             {
-                parentMobile.OnItemBounceCleared(this);
+                if (!parentMobile.Deleted)
+                {
+                    parentMobile.OnItemBounceCleared(this);
+                }
             }
 
             VerifyCompactInfo();
@@ -2350,7 +2349,7 @@ namespace Server
             var itemID = m_ItemID;
             var doubled = m_Amount > 1;
 
-            if (itemID is >= 0xEEA and <= 0xEF2) // Are we coins?
+            if (itemID >= 0xEEA && itemID <= 0xEF2) // Are we coins?
             {
                 var coinBase = (itemID - 0xEEA) / 3;
                 coinBase *= 3;
@@ -2414,7 +2413,7 @@ namespace Server
         }
 
 #nullable enable
-        public virtual void InvalidateProperties()
+        public void InvalidateProperties()
         {
             if (!ObjectPropertyList.Enabled)
             {
@@ -2577,10 +2576,6 @@ namespace Server
             {
                 VerifyCompactInfo();
             }
-        }
-
-        public virtual void BeforeSerialize()
-        {
         }
 
         public virtual void Deserialize(IGenericReader reader)
@@ -3261,8 +3256,10 @@ namespace Server
             m_DeltaFlags &= ~flags;
         }
 
-        public static void ProcessDeltaQueue()
+        public static int ProcessDeltaQueue()
         {
+            int count = 0;
+
             var limit = m_DeltaQueue.Count;
 
             while (m_DeltaQueue.Count > 0 && --limit >= 0)
@@ -3273,6 +3270,8 @@ namespace Server
                 {
                     continue;
                 }
+
+                count++;
 
                 item.SetFlag(ImplFlag.InQueue, false);
 
@@ -3294,6 +3293,8 @@ namespace Server
                 Console.WriteLine("Warning: {0} items left in delta queue after processing.", m_DeltaQueue.Count);
                 Utility.PopColor();
             }
+
+            return count;
         }
 
         public virtual void OnDelete()

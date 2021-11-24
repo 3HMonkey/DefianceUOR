@@ -117,9 +117,10 @@ namespace Server.Gumps
             }
         }
 
+
         public override void OnResponse(NetState sender, RelayInfo info)
         {
-            object toSet = null;
+            object toSet;
             bool shouldSet, shouldSend = true;
 
             switch (info.ButtonID)
@@ -132,7 +133,7 @@ namespace Server.Gumps
                         {
                             try
                             {
-                                Types.TryParse(m_Property.PropertyType, text.Text, out toSet);
+                                toSet = PropertiesGump.GetObjectFromString(m_Property.PropertyType, text.Text);
                                 shouldSet = true;
                             }
                             catch
@@ -152,20 +153,26 @@ namespace Server.Gumps
                     }
                 case 2: // Null
                     {
+                        toSet = null;
                         shouldSet = true;
+
                         break;
                     }
                 case 3: // Hue Picker
                     {
+                        toSet = null;
                         shouldSet = false;
                         shouldSend = false;
 
                         m_Mobile.SendHuePicker(new InternalPicker(m_Property, m_Mobile, m_Object, m_PropertiesGump));
+
                         break;
                     }
                 default:
                     {
+                        toSet = null;
                         shouldSet = false;
+
                         break;
                     }
             }

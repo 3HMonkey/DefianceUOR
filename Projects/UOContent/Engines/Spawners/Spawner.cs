@@ -67,7 +67,8 @@ namespace Server.Engines.Spawners
             {
                 var staticTile = staticTiles[i];
 
-                if (staticTile.Z == z && TileData.ItemTable[staticTile.ID & TileData.MaxItemValue].Wet)
+                if (staticTile.Z == z &&
+                    (TileData.ItemTable[staticTile.ID & TileData.MaxItemValue].Flags & TileFlag.Wet) != 0)
                 {
                     return true;
                 }

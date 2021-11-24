@@ -17,7 +17,25 @@ namespace Server.Items
 
         public override int BaseMana => 30;
 
-        // When using Wrestling, tactics isnt needed.
+        // No longer active in pub21:
+        /*public override bool CheckSkills( Mobile from )
+        {
+          if (!base.CheckSkills( from ))
+            return false;
+
+          if (!(from.Weapon is Fists))
+            return true;
+
+          Skill skill = from.Skills.Anatomy;
+
+          if (skill?.Base >= 80.0)
+            return true;
+
+          from.SendLocalizedMessage( 1061811 ); // You lack the required anatomy skill to perform that attack!
+
+          return false;
+        }*/
+
         public override bool RequiresTactics(Mobile from) =>
             !(from.Weapon is BaseWeapon weapon && weapon.Skill == SkillName.Wrestling);
 

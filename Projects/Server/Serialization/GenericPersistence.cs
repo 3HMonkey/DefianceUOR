@@ -41,7 +41,7 @@ namespace Server
             {
                 var path = Path.Combine(savePath, name);
 
-                PathUtility.EnsureDirectory(path);
+                AssemblyHandler.EnsureDirectory(path);
 
                 string binPath = Path.Combine(path, $"{name}.bin");
                 using var bin = new BinaryFileWriter(binPath, true);
@@ -54,7 +54,7 @@ namespace Server
             {
                 var path = Path.Combine(savePath, name);
 
-                PathUtility.EnsureDirectory(path);
+                AssemblyHandler.EnsureDirectory(path);
 
                 string binPath = Path.Combine(path, $"{name}.bin");
 

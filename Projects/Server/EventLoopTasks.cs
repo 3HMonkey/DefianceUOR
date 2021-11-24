@@ -55,7 +55,7 @@ namespace Server
             evt.WaitOne();
         }
 
-        public void ExecuteTasks()
+        public int ExecuteTasks()
         {
             if (Thread.CurrentThread != _mainThread)
             {
@@ -66,11 +66,15 @@ namespace Server
 
             for (int i = 0; i < count; i++)
             {
-                if (_queue.TryDequeue(out var a))
+                if (!_queue.TryDequeue(out var a))
                 {
-                    a();
+                    return count;
                 }
+
+                a();
             }
+
+            return count;
         }
     }
 }

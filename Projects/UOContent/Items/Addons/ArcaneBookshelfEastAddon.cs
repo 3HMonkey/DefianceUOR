@@ -1,29 +1,27 @@
 namespace Server.Items
 {
     [Serializable(0)]
-    public partial class ArcaneBookshelfEastAddon : BaseAddonContainer
+    public partial class ArcaneBookshelfEastAddon : BaseAddon
     {
         [Constructible]
-        public ArcaneBookshelfEastAddon() : base(0x3084)
+        public ArcaneBookshelfEastAddon()
         {
-            AddComponent(new AddonContainerComponent(0x3085), -1, 0, 0);
+            AddComponent(new AddonComponent(0x3084), 0, 0, 0);
+            AddComponent(new AddonComponent(0x3085), -1, 0, 0);
         }
 
-        public override BaseAddonContainerDeed Deed => new ArcaneBookshelfEastDeed();
-        public override bool RetainDeedHue => true;
-        public override int DefaultGumpID => 0x107;
-        public override int DefaultDropSound => 0x42;
+        public override BaseAddonDeed Deed => new ArcaneBookshelfEastDeed();
     }
 
     [Serializable(0)]
-    public partial class ArcaneBookshelfEastDeed : BaseAddonContainerDeed
+    public partial class ArcaneBookshelfEastDeed : BaseAddonDeed
     {
         [Constructible]
         public ArcaneBookshelfEastDeed()
         {
         }
 
-        public override BaseAddonContainer Addon => new ArcaneBookshelfEastAddon();
+        public override BaseAddon Addon => new ArcaneBookshelfEastAddon();
         public override int LabelNumber => 1073371; // arcane bookshelf (east)
     }
 }

@@ -1156,10 +1156,6 @@ namespace Server.Guilds
             list.TrimExcess();
         }
 
-        public override void BeforeSerialize()
-        {
-        }
-
         public override void Serialize(IGenericWriter writer)
         {
             if (LastFealty + TimeSpan.FromDays(1.0) < Core.Now)

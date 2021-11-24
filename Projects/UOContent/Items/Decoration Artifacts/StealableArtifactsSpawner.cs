@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Server.Logging;
 using Server.Utilities;
 
 namespace Server.Items
 {
     public class StealableArtifactsSpawner : Item
     {
-        private static readonly ILogger logger = LogFactory.GetLogger(typeof(StealableArtifactsSpawner));
-
         private static Type[] m_TypesOfEntries;
         private StealableInstance[] m_Artifacts;
 
@@ -359,25 +356,17 @@ namespace Server.Items
 
             public Item CreateInstance()
             {
-                try
+                var item = Type.CreateInstance<Item>();
+
+                if (Hue > 0)
                 {
-                    var item = Type.CreateInstance<Item>();
-
-                    if (Hue > 0)
-                    {
-                        item.Hue = Hue;
-                    }
-
-                    item.Movable = false;
-                    item.MoveToWorld(Location, Map);
-
-                    return item;
+                    item.Hue = Hue;
                 }
-                catch (Exception e)
-                {
-                    logger.Warning(e, $"Failed to construct stealable artifact: {Type.FullName}");
-                    return null;
-                }
+
+                item.Movable = false;
+                item.MoveToWorld(Location, Map);
+
+                return item;
             }
         }
 

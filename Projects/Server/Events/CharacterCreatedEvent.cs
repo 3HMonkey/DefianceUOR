@@ -23,9 +23,9 @@ namespace Server
     public class CharacterCreatedEventArgs
     {
         public CharacterCreatedEventArgs(
-            NetState state, IAccount a, string name, bool female, int hue, StatNameValue[] stats, CityInfo city,
-            SkillNameValue[] skills, int shirtHue, int pantsHue, int hairID, int hairHue, int beardID, int beardHue,
-            int profession, Race race
+            NetState state, IAccount a, string name, bool female, int hue, int str, int dex,
+            int intel, CityInfo city, SkillNameValue[] skills, int shirtHue, int pantsHue, int hairID, int hairHue,
+            int beardID, int beardHue, int profession, Race race
         )
         {
             State = state;
@@ -33,7 +33,9 @@ namespace Server
             Name = name;
             Female = female;
             Hue = hue;
-            Stats = stats;
+            Str = str;
+            Dex = dex;
+            Int = intel;
             City = city;
             Skills = skills;
             ShirtHue = shirtHue;
@@ -58,7 +60,11 @@ namespace Server
 
         public int Hue { get; }
 
-        public StatNameValue[] Stats { get; }
+        public int Str { get; }
+
+        public int Dex { get; }
+
+        public int Int { get; }
 
         public CityInfo City { get; }
 
@@ -81,8 +87,18 @@ namespace Server
         public Race Race { get; }
     }
 
-    public readonly record struct SkillNameValue(SkillName Name, int Value);
-    public readonly record struct StatNameValue(StatType Name, int Value);
+    public struct SkillNameValue
+    {
+        public SkillName Name { get; }
+
+        public int Value { get; }
+
+        public SkillNameValue(SkillName name, int value)
+        {
+            Name = name;
+            Value = value;
+        }
+    }
 
     public static partial class EventSink
     {

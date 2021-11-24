@@ -1,29 +1,27 @@
 namespace Server.Items
 {
     [Serializable(0)]
-    public partial class ElvenDresserEastAddon : BaseAddonContainer
+    public partial class ElvenDresserEastAddon : BaseAddon
     {
         [Constructible]
-        public ElvenDresserEastAddon() : base(0x30E4)
+        public ElvenDresserEastAddon()
         {
-            AddComponent(new AddonContainerComponent(0x30E3), 0, -1, 0);
+            AddComponent(new AddonComponent(0x30E4), 0, 0, 0);
+            AddComponent(new AddonComponent(0x30E3), 0, -1, 0);
         }
 
-        public override BaseAddonContainerDeed Deed => new ElvenDresserEastDeed();
-        public override bool RetainDeedHue => true;
-        public override int DefaultGumpID => 0x51;
-        public override int DefaultDropSound => 0x42;
+        public override BaseAddonDeed Deed => new ElvenDresserEastDeed();
     }
 
     [Serializable(0)]
-    public partial class ElvenDresserEastDeed : BaseAddonContainerDeed
+    public partial class ElvenDresserEastDeed : BaseAddonDeed
     {
         [Constructible]
         public ElvenDresserEastDeed()
         {
         }
 
-        public override BaseAddonContainer Addon => new ElvenDresserEastAddon();
+        public override BaseAddon Addon => new ElvenDresserEastAddon();
         public override int LabelNumber => 1073388; // elven dresser (east)
     }
 }

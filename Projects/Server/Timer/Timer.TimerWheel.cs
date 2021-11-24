@@ -28,11 +28,10 @@ namespace Server
         private const int _tickRatePowerOf2 = 3;
         private const int _tickRate = 1 << _tickRatePowerOf2; // 8ms
 
+        private static long _lastTickTurned = -1;
+
         private static readonly Timer[][] _rings = new Timer[_ringLayers][];
         private static readonly int[] _ringIndexes = new int[_ringLayers];
-
-        private static long _lastTickTurned = -1;
-        private static bool _timerWheelExecuting;
 
         public static void Init(long tickCount)
         {
@@ -45,63 +44,46 @@ namespace Server
             }
         }
 
-        public static void Slice(long tickCount)
+        public static int Slice(long tickCount)
         {
             var deltaSinceTurn = tickCount - _lastTickTurned;
+            var events = 0;
             while (deltaSinceTurn >= _tickRate)
             {
                 deltaSinceTurn -= _tickRate;
                 _lastTickTurned += _tickRate;
-                Turn();
+                events += Turn() ? 1 : 0;
             }
+
+            return events;
         }
 
-        private static void Turn()
+        private static bool Turn()
         {
-            _timerWheelExecuting = true;
-            var turnNextWheel = false;
-
-            var _executingRings = new Timer[_ringLayers];
-
-            // Detach the chain from the timer wheel. This allows adding timers to the same slot during execution.
-            for (var i = 0; i < _ringLayers; i++)
-            {
-                if (i == 0 || turnNextWheel)
-                {
-                    var ringIndex = ++_ringIndexes[i];
-                    turnNextWheel = ringIndex >= _ringSize;
-
-                    if (turnNextWheel)
-                    {
-                        ringIndex = _ringIndexes[i] = 0;
-                    }
-
-                    _executingRings[i] = _rings[i][ringIndex];
-                    _rings[i][ringIndex] = null;
-                }
-                else
-                {
-                    _executingRings[i] = null;
-                }
-            }
+            bool events = false;
 
             for (var i = 0; i < _ringLayers; i++)
             {
-                var timer = _executingRings[i];
-                if (timer == null)
+                // Increment the ring index, then get the timer.
+                var ringIndex = ++_ringIndexes[i];
+                bool turnNextWheel = ringIndex >= _ringSize;
+
+                if (turnNextWheel)
                 {
-                    continue;
+                    ringIndex = _ringIndexes[i] = 0;
                 }
 
-                do
+                var timer = _rings[i][ringIndex];
+                if (timer != null)
                 {
-                    var next = timer._nextTimer;
+                    events = true;
 
-                    timer.Detach();
-
-                    // Check to see if it's running just in case it was stopped by another timer
-                    if (timer.Running)
+                    do
                     {
+                        var next = _rings[i][ringIndex] = timer._nextTimer;
+
+                        timer.Detach();
+
                         if (i > 0 && timer._remaining > 0)
                         {
                             // Promote
@@ -111,18 +93,18 @@ namespace Server
                         {
                             Execute(timer);
                         }
-                    }
 
-                    if (!timer.Running)
-                    {
-                        timer.OnDetach();
-                    }
+                        timer = next;
+                    } while (timer != null);
+                }
 
-                    timer = next;
-                } while (timer != null);
+                if (!turnNextWheel)
+                {
+                    break;
+                }
             }
 
-            _timerWheelExecuting = false;
+            return events;
         }
 
         private static void Execute(Timer timer)
@@ -154,17 +136,14 @@ namespace Server
 
         private static void AddTimer(Timer timer, long delay)
         {
-#if DEBUG_TIMERS
-            var originalDelay = delay;
-#endif
             delay = Math.Max(0, delay);
 
             var resolutionPowerOf2 = _tickRatePowerOf2;
             for (var i = 0; i < _ringLayers; i++)
             {
-                var resolution = 1L << resolutionPowerOf2;
+                var resolution = 1 << resolutionPowerOf2;
                 var nextResolutionPowerOf2 = resolutionPowerOf2 + _ringSizePowerOf2;
-                var max = 1L << nextResolutionPowerOf2;
+                long max = 1 << nextResolutionPowerOf2;
                 if (delay < max)
                 {
                     var remaining = delay & (resolution - 1);
@@ -189,18 +168,13 @@ namespace Server
 
                     _rings[i][slot] = timer;
 
-                    return;
+                    break;
                 }
 
                 // The remaining amount until we turn this ring
                 delay -= resolution * (_ringSize - _ringIndexes[i]);
                 resolutionPowerOf2 = nextResolutionPowerOf2;
             }
-
-            // TODO: Handle timers > 17yrs
-#if DEBUG_TIMERS
-            logger.Error($"Timer is more than max duration. ({originalDelay})");
-#endif
         }
 
         public static void DumpInfo(TextWriter tw)
@@ -242,7 +216,7 @@ namespace Server
             }
 
 #if DEBUG_TIMERS
-            tw.WriteLine($"{Environment.NewLine}Stack Traces:");
+            tw.WriteLine("\nStack Traces:");
             foreach (var kvp in DelayCallTimer._stackTraces)
             {
                 tw.WriteLine(kvp.Value);

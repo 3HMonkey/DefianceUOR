@@ -11,7 +11,18 @@ namespace Server.Items
         public static Dictionary<Mobile, FeintTimer> Registry { get; } = new();
 
         public override int BaseMana => 30;
-        public override bool RequiresSecondarySkill(Mobile from) => true;
+
+        public override bool CheckSkills(Mobile from)
+        {
+            if (GetSkill(from, SkillName.Ninjitsu) < 50.0 && GetSkill(from, SkillName.Bushido) < 50.0)
+            {
+                // You need ~1_SKILL_REQUIREMENT~ Bushido or Ninjitsu skill to perform that attack!
+                from.SendLocalizedMessage(1063347, "50");
+                return false;
+            }
+
+            return base.CheckSkills(from);
+        }
 
         public override void OnHit(Mobile attacker, Mobile defender, int damage)
         {
@@ -35,8 +46,10 @@ namespace Server.Items
 
             timer = new FeintTimer(
                 defender,
-                (int)(20.0 + 3.0 *
-                    (Math.Max(attacker.Skills.Ninjitsu.Value, attacker.Skills.Bushido.Value) - 50.0) / 7.0)
+                (int)(20.0 + 3.0 * (Math.Max(
+                    attacker.Skills.Ninjitsu.Value,
+                    attacker.Skills.Bushido.Value
+                ) - 50.0) / 7.0)
             ); // 20-50 % decrease
 
             timer.Start();

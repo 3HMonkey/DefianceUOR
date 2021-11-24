@@ -64,7 +64,7 @@ namespace SerializableMigration
 
             if (fieldOrPropertySymbol is IFieldSymbol fieldSymbol)
             {
-                propertyName = fieldSymbol.Name;
+                propertyName = fieldSymbol.GetPropertyName();
                 propertyType = fieldSymbol.Type;
             }
             else if (fieldOrPropertySymbol is IPropertySymbol propertySymbol)

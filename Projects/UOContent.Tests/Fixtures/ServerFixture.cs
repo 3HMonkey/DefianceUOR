@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using Server.Misc;
 
 namespace Server.Tests
@@ -9,8 +8,8 @@ namespace Server.Tests
         // Global setup
         static ServerFixture()
         {
-            Core.Assembly = Assembly.GetExecutingAssembly();
             Core.LoopContext = new EventLoopContext();
+
             Core.Expansion = Expansion.EJ;
 
             // Load Configurations

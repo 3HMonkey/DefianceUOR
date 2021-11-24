@@ -50,12 +50,9 @@ namespace Server
 
         public void Cancel()
         {
-            if (_timer != null)
-            {
-                _timer._returnOnDetach = true;
-                _timer?.Stop();
-                _timer = null;
-            }
+            _timer?.Stop();
+            _timer?.Return();
+            _timer = null;
 
             this = default;
         }

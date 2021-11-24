@@ -12,25 +12,33 @@ namespace Server.Items
 
         public override int BaseMana => 20;
 
-        public override bool RequiresTactics(Mobile from) => from.Weapon is not BaseWeapon { Skill: SkillName.Wrestling };
-
-        // Disarm is special. Doesnt need tactics when wresling and tactics need is lower than fighting skill.
-        public virtual double GetRequiredTactics(Mobile from)
+        // No longer active in pub21:
+        /*public override bool CheckSkills( Mobile from )
         {
-            if (from.Weapon is BaseWeapon weapon)
-            {
-                if (weapon.PrimaryAbility == this)
-                {
-                    return 30.0;
-                }
+          if (!base.CheckSkills( from ))
+            return false;
 
-                if (weapon.SecondaryAbility == this)
-                {
-                    return 60.0;
-                }
+          if (!(from.Weapon is Fists))
+            return true;
+
+          Skill skill = from.Skills.ArmsLore;
+
+          if (skill?.Base >= 80.0)
+            return true;
+
+          from.SendLocalizedMessage( 1061812 ); // You lack the required skill in armslore to perform that attack!
+
+          return false;
+        }*/
+
+        public override bool RequiresTactics(Mobile from)
+        {
+            if (!(from.Weapon is BaseWeapon weapon))
+            {
+                return false;
             }
 
-            return 200.0;
+            return weapon.Skill != SkillName.Wrestling;
         }
 
         public override void OnHit(Mobile attacker, Mobile defender, int damage)
@@ -44,7 +52,7 @@ namespace Server.Items
 
             var toDisarm = defender.FindItemOnLayer(Layer.OneHanded);
 
-            if (toDisarm?.Movable != false)
+            if (toDisarm?.Movable == false)
             {
                 toDisarm = defender.FindItemOnLayer(Layer.TwoHanded);
             }
@@ -55,7 +63,7 @@ namespace Server.Items
             {
                 attacker.SendLocalizedMessage(1004001); // You cannot disarm your opponent.
             }
-            else if (!Core.ML && toDisarm == null || toDisarm is BaseShield or Spellbook)
+            else if (!Core.ML && toDisarm == null || toDisarm is BaseShield || toDisarm is Spellbook)
             {
                 attacker.SendLocalizedMessage(1060849); // Your target is already unarmed!
             }
@@ -68,8 +76,6 @@ namespace Server.Items
                 defender.FixedParticles(0x37BE, 232, 25, 9948, EffectLayer.LeftHand);
 
                 pack.DropItem(toDisarm);
-
-                BuffInfo.AddBuff(defender, new BuffInfo(BuffIcon.NoRearm, 1075637, BlockEquipDuration, defender));
 
                 BaseWeapon.BlockEquip(defender, BlockEquipDuration);
             }

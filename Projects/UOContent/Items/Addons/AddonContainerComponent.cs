@@ -1,8 +1,5 @@
-using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using Server.ContextMenus;
-using Server.Network;
 
 namespace Server.Items
 {
@@ -22,11 +19,11 @@ namespace Server.Items
 
         [SerializableField(0)]
         [SerializableFieldAttr("[CommandProperty(AccessLevel.GameMaster)]")]
-        private BaseAddonContainer _addon;
+        public BaseAddonContainer _addon;
 
         [SerializableField(1)]
         [SerializableFieldAttr("[CommandProperty(AccessLevel.GameMaster)]")]
-        private Point3D _offset;
+        public Point3D _offset;
 
         [Hue]
         [CommandProperty(AccessLevel.GameMaster)]
@@ -68,6 +65,9 @@ namespace Server.Items
             }
         }
 
+        public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list) =>
+            _addon?.GetContextMenuEntries(from, list);
+
         public override void OnMapChange()
         {
             if (_addon != null)
@@ -76,27 +76,11 @@ namespace Server.Items
             }
         }
 
-        public override void GetProperties(ObjectPropertyList list) => _addon?.GetProperties(list);
-
-        public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list) =>
-            _addon?.GetContextMenuEntries(from, list);
-
         public override void OnAfterDelete()
         {
             base.OnAfterDelete();
 
             _addon?.Delete();
-        }
-
-        public override void SendWorldPacketTo(NetState ns, ReadOnlySpan<byte> world = default)
-        {
-            Span<byte> buffer = stackalloc byte[OutgoingEntityPackets.MaxWorldEntityPacketLength].InitializePacket();
-            var length = OutgoingItemPackets.CreateWorldItem(buffer, this);
-            // Use an itemid of a real container
-            BinaryPrimitives.WriteUInt16BigEndian(buffer[7..9], (ushort)(_addon?.ItemID ?? 0x9AB));
-            ns.Send(buffer[..length]);
-
-            base.SendWorldPacketTo(ns, world);
         }
 
         [AfterDeserialization]

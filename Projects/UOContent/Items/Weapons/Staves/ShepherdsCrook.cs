@@ -57,31 +57,33 @@ namespace Server.Items
 
             protected override void OnTarget(Mobile from, object targ)
             {
-                if (targ is not BaseCreature bc)
+                if (targ is BaseCreature bc)
                 {
-                    from.SendLocalizedMessage(502472); // You don't seem to be able to persuade that to move.
-                    return;
-                }
-
-                if (!IsHerdable(bc))
-                {
-                    from.SendLocalizedMessage(502468); // That is not a herdable animal.
-                    return;
-                }
-
-                if (bc.Controlled)
-                {
-                    bc.PrivateOverheadMessage(
-                        MessageType.Regular,
-                        0x3B2,
-                        502467, // That animal looks tame already.
-                        from.NetState
-                    );
+                    if (IsHerdable(bc))
+                    {
+                        if (bc.Controlled)
+                        {
+                            bc.PrivateOverheadMessage(
+                                MessageType.Regular,
+                                0x3B2,
+                                502467,
+                                from.NetState
+                            ); // That animal looks tame already.
+                        }
+                        else
+                        {
+                            from.SendLocalizedMessage(502475); // Click where you wish the animal to go.
+                            from.Target = new InternalTarget(bc);
+                        }
+                    }
+                    else
+                    {
+                        from.SendLocalizedMessage(502468); // That is not a herdable animal.
+                    }
                 }
                 else
                 {
-                    from.SendLocalizedMessage(502475); // Click where you wish the animal to go.
-                    from.Target = new InternalTarget(bc);
+                    from.SendLocalizedMessage(502472); // You don't seem to be able to persuade that to move.
                 }
             }
 
@@ -138,9 +140,9 @@ namespace Server.Items
                             m_Creature.PrivateOverheadMessage(
                                 MessageType.Regular,
                                 0x3B2,
-                                502471, // That wasn't even challenging.
+                                502471,
                                 from.NetState
-                            );
+                            ); // That wasn't even challenging.
                         }
 
                         if (from.CheckTargetSkill(SkillName.Herding, m_Creature, min, max))

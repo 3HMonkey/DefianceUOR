@@ -73,20 +73,40 @@ namespace Server.Network
 
             int genderRace = reader.ReadByte();
 
-            var stats = new StatNameValue[]
-            {
-                new(StatType.Str, reader.ReadByte()),
-                new(StatType.Dex, reader.ReadByte()),
-                new(StatType.Int, reader.ReadByte())
-            };
+            int str = reader.ReadByte();
+            int dex = reader.ReadByte();
+            int intl = reader.ReadByte();
+            int is1 = reader.ReadByte();
+            int vs1 = reader.ReadByte();
+            int is2 = reader.ReadByte();
+            int vs2 = reader.ReadByte();
+            int is3 = reader.ReadByte();
+            int vs3 = reader.ReadByte();
 
-            var skills = new SkillNameValue[state.NewCharacterCreation ? 4 : 3];
-            skills[0] = new SkillNameValue((SkillName)reader.ReadByte(), reader.ReadByte());
-            skills[1] = new SkillNameValue((SkillName)reader.ReadByte(), reader.ReadByte());
-            skills[2] = new SkillNameValue((SkillName)reader.ReadByte(), reader.ReadByte());
+            SkillNameValue[] skills;
+
+            // We have protocol changes by now, so this is ok
             if (state.NewCharacterCreation)
             {
-                skills[3] = new SkillNameValue((SkillName)reader.ReadByte(), reader.ReadByte());
+                int is4 = reader.ReadByte();
+                int vs4 = reader.ReadByte();
+
+                skills = new[]
+                {
+                    new SkillNameValue((SkillName)is1, vs1),
+                    new SkillNameValue((SkillName)is2, vs2),
+                    new SkillNameValue((SkillName)is3, vs3),
+                    new SkillNameValue((SkillName)is4, vs4)
+                };
+            }
+            else
+            {
+                skills = new[]
+                {
+                    new SkillNameValue((SkillName)is1, vs1),
+                    new SkillNameValue((SkillName)is2, vs2),
+                    new SkillNameValue((SkillName)is3, vs3)
+                };
             }
 
             int hue = reader.ReadUInt16();
@@ -151,7 +171,9 @@ namespace Server.Network
                 name,
                 female,
                 hue,
-                stats,
+                str,
+                dex,
+                intl,
                 info[cityIndex],
                 skills,
                 shirtHue,

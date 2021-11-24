@@ -13,8 +13,18 @@ namespace Server.Items
         public override int BaseMana => 30;
 
         public override bool RequiresSE => true;
-        public override bool RequiresSecondarySkill(Mobile from) => true;
-        public override SkillName GetSecondarySkillName(Mobile from) => SkillName.Bushido;
+
+        public override bool CheckSkills(Mobile from)
+        {
+            if (GetSkill(from, SkillName.Bushido) < 50.0)
+            {
+                // You need ~1_SKILL_REQUIREMENT~ Bushido skill to perform that attack!
+                from.SendLocalizedMessage(1070768, "50");
+                return false;
+            }
+
+            return base.CheckSkills(from);
+        }
 
         public override void OnHit(Mobile attacker, Mobile defender, int damage)
         {

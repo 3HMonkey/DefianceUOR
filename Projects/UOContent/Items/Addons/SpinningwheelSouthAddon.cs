@@ -3,19 +3,17 @@ using System;
 namespace Server.Items
 {
     [Serializable(0, false)]
-    [TypeAlias("Server.Items.SpinningwheelSouthAddon")]
-    public partial class SpinningWheelSouthAddon : BaseAddon, ISpinningWheel
+    public partial class SpinningwheelSouthAddon : BaseAddon, ISpinningWheel
     {
         private Timer m_Timer;
 
         [Constructible]
-        public SpinningWheelSouthAddon()
+        public SpinningwheelSouthAddon()
         {
             AddComponent(new AddonComponent(0x1015), 0, 0, 0);
         }
 
-        public override int LabelNumber => 1024117; // spinning wheel
-        public override BaseAddonDeed Deed => new SpinningWheelSouthDeed();
+        public override BaseAddonDeed Deed => new SpinningwheelSouthDeed();
 
         public bool Spinning => m_Timer != null;
 
@@ -78,9 +76,9 @@ namespace Server.Items
             private readonly SpinCallback m_Callback;
             private readonly Mobile m_From;
             private readonly int m_Hue;
-            private readonly SpinningWheelSouthAddon m_Wheel;
+            private readonly SpinningwheelSouthAddon m_Wheel;
 
-            public SpinTimer(SpinningWheelSouthAddon wheel, SpinCallback callback, Mobile from, int hue) : base(
+            public SpinTimer(SpinningwheelSouthAddon wheel, SpinCallback callback, Mobile from, int hue) : base(
                 TimeSpan.FromSeconds(3.0)
             )
             {
@@ -98,15 +96,14 @@ namespace Server.Items
     }
 
     [Serializable(0, false)]
-    [TypeAlias("Server.Items.SpinningwheelSouthDeed")]
-    public partial class SpinningWheelSouthDeed : BaseAddonDeed
+    public partial class SpinningwheelSouthDeed : BaseAddonDeed
     {
         [Constructible]
-        public SpinningWheelSouthDeed()
+        public SpinningwheelSouthDeed()
         {
         }
 
-        public override BaseAddon Addon => new SpinningWheelSouthAddon();
-        public override int LabelNumber => 1044342; // spinning wheel (south)
+        public override BaseAddon Addon => new SpinningwheelSouthAddon();
+        public override int LabelNumber => 1044342; // spining wheel (south)
     }
 }
