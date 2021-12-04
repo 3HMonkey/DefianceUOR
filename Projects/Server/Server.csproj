@@ -38,7 +38,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.0.2" />
         <PackageReference Include="Zlib.Bindings" Version="1.5.0" />
-        <PackageReference Include="SuperSimpleTcp" Version="2.4.0" />
         
     </ItemGroup>
     <ItemGroup>

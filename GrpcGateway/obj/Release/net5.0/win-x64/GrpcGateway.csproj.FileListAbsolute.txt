@@ -1,0 +1,12 @@
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\Release\net5.0\win-x64\GrpcGateway.deps.json
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\Release\net5.0\win-x64\GrpcGateway.dll
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\Release\net5.0\win-x64\ref\GrpcGateway.dll
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\Release\net5.0\win-x64\GrpcGateway.pdb
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\Release\net5.0\win-x64\GrpcGateway.csproj.AssemblyReference.cache
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\Release\net5.0\win-x64\GrpcGateway.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\Release\net5.0\win-x64\GrpcGateway.AssemblyInfoInputs.cache
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\Release\net5.0\win-x64\GrpcGateway.AssemblyInfo.cs
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\Release\net5.0\win-x64\GrpcGateway.csproj.CoreCompileInputs.cache
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\Release\net5.0\win-x64\GrpcGateway.dll
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\Release\net5.0\win-x64\ref\GrpcGateway.dll
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\Release\net5.0\win-x64\GrpcGateway.pdb

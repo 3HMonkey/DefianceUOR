@@ -18,7 +18,7 @@
 [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif
 internal static partial class ThisAssembly {
-    internal const string AssemblyConfiguration = "Debug";
+    internal const string AssemblyConfiguration = "Release";
     internal const string AssemblyFileVersion = "0.8.2.3";
     internal const string AssemblyInformationalVersion = "0.8.2+7e79318b24";
     internal const string AssemblyName = "GrpcGateway";

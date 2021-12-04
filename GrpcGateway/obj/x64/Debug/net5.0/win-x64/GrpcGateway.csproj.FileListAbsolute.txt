@@ -1,4 +1,3 @@
-C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\GrpcGateway.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\x64\Debug\net5.0\win-x64\GrpcGateway.deps.json
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\x64\Debug\net5.0\win-x64\GrpcGateway.dll
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\x64\Debug\net5.0\win-x64\ref\GrpcGateway.dll
@@ -11,6 +10,7 @@ C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\x64\Debug\net5.0\win
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\x64\Debug\net5.0\win-x64\Serilog.dll
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\x64\Debug\net5.0\win-x64\Serilog.Sinks.Async.dll
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\bin\x64\Debug\net5.0\win-x64\Serilog.Sinks.Console.dll
+C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\GrpcGateway.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\GrpcGateway.AssemblyInfoInputs.cache
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\GrpcGateway.AssemblyInfo.cs
 C:\Users\wewan\Documents\GitHub\DefianceUOR\GrpcGateway\obj\x64\Debug\net5.0\win-x64\GrpcGateway.csproj.CoreCompileInputs.cache
