@@ -298,7 +298,7 @@ namespace Server.Misc
                     }
             }
 
-            return useHaven ? _newHavenInfo : args.City;
+            return args.City;
         }
 
         private static void SetStats(Mobile m, NetState state, StatNameValue[] stats, int prof)
