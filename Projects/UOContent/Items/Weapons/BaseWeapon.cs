@@ -67,6 +67,9 @@ namespace Server.Items
         private SlayerName m_Slayer2;
         private float m_Speed;
 
+        // Weapon dice damage
+        private static int m_DiceNum, m_DiceSides, m_DiceOffset;
+
         // Overridable values. These values are provided to override the defaults which get defined in the individual weapon scripts.
         private int m_StrReq, m_DexReq, m_IntReq;
         private WeaponType m_Type;
@@ -81,6 +84,9 @@ namespace Server.Items
             m_IntReq = -1;
             m_MinDamage = -1;
             m_MaxDamage = -1;
+            m_DiceNum = 0;
+            m_DiceSides = 0;
+            m_DiceOffset = 0;
             m_HitSound = -1;
             m_MissSound = -1;
             m_Speed = -1;
@@ -159,6 +165,10 @@ namespace Server.Items
         public virtual SkillName AosSkill => DefSkill;
         public virtual WeaponType AosType => DefType;
         public virtual WeaponAnimation AosAnimation => DefAnimation;
+
+        public virtual int Dice_Num => m_DiceNum;
+        public virtual int Dice_Sides => m_DiceSides;
+        public virtual int Dice_Offset => m_DiceOffset;
 
         public virtual int OldStrengthReq => 0;
         public virtual int OldDexterityReq => 0;
@@ -337,26 +347,11 @@ namespace Server.Items
         }
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public int MinDamage
-        {
-            get => m_MinDamage == -1 ? Core.AOS ? AosMinDamage : OldMinDamage : m_MinDamage;
-            set
-            {
-                m_MinDamage = value;
-                InvalidateProperties();
-            }
-        }
+        public int MinDamage => Dice_Num + Dice_Offset;
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public int MaxDamage
-        {
-            get => m_MaxDamage == -1 ? Core.AOS ? AosMaxDamage : OldMaxDamage : m_MaxDamage;
-            set
-            {
-                m_MaxDamage = value;
-                InvalidateProperties();
-            }
-        }
+        public int MaxDamage => Dice_Num * Dice_Sides + Dice_Offset;
+
 
         [CommandProperty(AccessLevel.GameMaster)]
         public float Speed
@@ -2338,9 +2333,17 @@ namespace Server.Items
 
         public virtual double GetBaseDamage(Mobile attacker)
         {
-            GetBaseDamageRange(attacker, out var min, out var max);
+            int min, max, damage = 0;
 
-            var damage = Utility.RandomMinMax(min, max);
+            if (attacker is BaseCreature)
+            {
+                GetBaseDamageRange(attacker, out min, out max);
+                damage = Utility.RandomMinMax(min, max);
+            }
+            else
+            {
+                damage=Utility.Dice((uint)Dice_Num, (uint)Dice_Sides, Dice_Offset);
+            }
 
             if (Core.AOS)
             {
