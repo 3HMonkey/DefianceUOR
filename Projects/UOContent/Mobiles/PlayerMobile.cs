@@ -1283,6 +1283,17 @@ namespace Server.Mobiles
                 return;
             }
 
+            if (NameChangeGump.HasValidName(from))
+            {
+                return;
+            }
+            else
+            {
+                from.SendMessage(33, "Your character name '{0}' is already in use by player character or it has been marked as invalid. Please choose a new one.", from.Name);
+                from.RawName = "Generic Player";
+                from.SendGump(new NameChangeGump());
+            }
+
             if (from is PlayerMobile mobile)
             {
                 mobile.ClaimAutoStabledPets();
