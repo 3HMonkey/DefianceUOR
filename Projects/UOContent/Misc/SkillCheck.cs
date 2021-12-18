@@ -276,6 +276,15 @@ namespace Server.Misc
                     toGain = Utility.Random(4) + 1;
                 }
 
+                if (PowerHour.IsActive)
+                {
+                    toGain = toGain * 2;
+                }
+                else if (!PowerHour.IsActive)
+                {
+                    toGain = toGain * 1;
+                }
+
                 var skills = from.Skills;
 
                 if (from.Player && skills.Total / skills.Cap >= Utility.RandomDouble())
