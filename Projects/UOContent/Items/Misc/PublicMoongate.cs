@@ -271,7 +271,7 @@ namespace Server.Items
             );
 
         public static readonly PMList[] UORLists = { Felucca };
-        public static readonly PMList[] UORListsYoung = { Trammel };
+        public static readonly PMList[] UORListsYoung = { Felucca };
         public static readonly PMList[] LBRLists = { Trammel, Felucca, Ilshenar };
         public static readonly PMList[] LBRListsYoung = { Trammel, Ilshenar };
         public static readonly PMList[] AOSLists = { Trammel, Felucca, Ilshenar, Malas };
@@ -300,116 +300,48 @@ namespace Server.Items
 
     public class MoongateGump : Gump
     {
-        private readonly PMList[] m_Lists;
         private readonly Mobile m_Mobile;
         private readonly Item m_Moongate;
+        private static readonly PMList[] m_MoongateList = PMList.UORLists;
 
         public MoongateGump(Mobile mobile, Item moongate) : base(100, 100)
         {
             m_Mobile = mobile;
             m_Moongate = moongate;
 
-            PMList[] checkLists;
 
             if (mobile.Player)
             {
-                if (Sigil.ExistsOn(mobile))
-                {
-                    checkLists = PMList.SigilLists;
-                }
-                else if (mobile.Kills >= 5)
-                {
-                    checkLists = PMList.RedLists;
-                }
-                else
-                {
-                    var flags = mobile.NetState?.Flags ?? ClientFlags.None;
-                    var young = mobile is PlayerMobile playerMobile && playerMobile.Young;
+                var flags = mobile.NetState?.Flags ?? ClientFlags.None;
+                var young = mobile is PlayerMobile playerMobile && playerMobile.Young;
 
-                    if (Core.SE && (flags & ClientFlags.Tokuno) != 0)
-                    {
-                        checkLists = young ? PMList.SEListsYoung : PMList.SELists;
-                    }
-                    else if (Core.AOS && (flags & ClientFlags.Malas) != 0)
-                    {
-                        checkLists = young ? PMList.AOSListsYoung : PMList.AOSLists;
-                    }
-                    else if ((flags & ClientFlags.Ilshenar) != 0)
-                    {
-                        checkLists = young ? PMList.LBRListsYoung : PMList.LBRLists;
-                    }
-                    else
-                    {
-                        checkLists = young ? PMList.UORListsYoung : PMList.UORLists;
-                    }
-                }
-            }
-            else
-            {
-                checkLists = PMList.SELists;
             }
 
-            m_Lists = new PMList[checkLists.Length];
-
-            for (var i = 0; i < m_Lists.Length; ++i)
-            {
-                m_Lists[i] = checkLists[i];
-            }
-
-            for (var i = 0; i < m_Lists.Length; ++i)
-            {
-                if (m_Lists[i].Map == mobile.Map)
-                {
-                    var temp = m_Lists[i];
-
-                    m_Lists[i] = m_Lists[0];
-                    m_Lists[0] = temp;
-
-                    break;
-                }
-            }
 
             AddPage(0);
+            AddBackground(282, 87, 233, 374, 9250);
+            AddLabel(333, 101, 0, "Pick your destination");
 
-            AddBackground(0, 0, 380, 280, 5054);
+            var moongates = m_MoongateList[0].Entries;
 
-            AddButton(10, 210, 4005, 4007, 1);
-            AddHtmlLocalized(45, 210, 140, 25, 1011036); // OKAY
-
-            AddButton(10, 235, 4005, 4007, 0);
-            AddHtmlLocalized(45, 235, 140, 25, 1011012); // CANCEL
-
-            AddHtmlLocalized(5, 5, 200, 20, 1012011); // Pick your destination:
-
-            for (var i = 0; i < checkLists.Length; ++i)
+            for (var i = 0; i < moongates.Length; ++i)
             {
-                AddButton(10, 35 + i * 25, 2117, 2118, 0, GumpButtonType.Page, Array.IndexOf(m_Lists, checkLists[i]) + 1);
-                AddHtmlLocalized(30, 35 + i * 25, 150, 20, checkLists[i].Number);
+                // Radiobutton for moongate
+                AddRadio(335, 130 + i * 30, 210, 211, false, i);
+                // Label for radio button
+                AddHtmlLocalized(366, 130 + i * 30, 150, 20, moongates[i].Number);
+
             }
 
-            for (var i = 0; i < m_Lists.Length; ++i)
-            {
-                RenderPage(i, Array.IndexOf(checkLists, m_Lists[i]));
-            }
+            // Cancel
+            AddButton(300, 413, 241, 243, 0, GumpButtonType.Reply, 0);
+            // Okay
+            AddButton(435, 413, 247, 248, 1, GumpButtonType.Reply, 0);
+
+
+
         }
 
-        private void RenderPage(int index, int offset)
-        {
-            var list = m_Lists[index];
-
-            AddPage(index + 1);
-
-            AddButton(10, 35 + offset * 25, 2117, 2118, 0, GumpButtonType.Page, index + 1);
-            AddHtmlLocalized(30, 35 + offset * 25, 150, 20, list.SelNumber);
-
-            var entries = list.Entries;
-
-            for (var i = 0; i < entries.Length; ++i)
-            {
-                AddRadio(200, 35 + i * 25, 210, 211, false, index * 100 + i);
-                AddHtmlLocalized(225, 35 + i * 25, 150, 20, entries[i].Number);
-            }
-        }
 
         public override void OnResponse(NetState state, RelayInfo info)
         {
@@ -434,12 +366,12 @@ namespace Server.Items
             var listIndex = switchID / 100;
             var listEntry = switchID % 100;
 
-            if (listIndex < 0 || listIndex >= m_Lists.Length)
+            if (listIndex < 0 || listIndex >= m_MoongateList.Length)
             {
                 return;
             }
 
-            var list = m_Lists[listIndex];
+            var list = m_MoongateList[listIndex];
 
             if (listEntry < 0 || listEntry >= list.Entries.Length)
             {
