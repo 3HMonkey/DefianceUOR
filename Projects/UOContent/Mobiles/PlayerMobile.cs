@@ -20,6 +20,7 @@ using Server.Misc;
 using Server.Movement;
 using Server.Multis;
 using Server.Network;
+using Server.Poker;
 using Server.Regions;
 using Server.SkillHandlers;
 using Server.Spells;
@@ -201,6 +202,15 @@ namespace Server.Mobiles
         private DateTime[] m_StuckMenuUses;
 
         private QuestArrow m_QuestArrow;
+
+        ///////////////////////////////////////////////POKER
+        private PokerGame m_PokerGame; //Edit for Poker System
+        public PokerGame PokerGame
+        {
+            get { return m_PokerGame; }
+            set { m_PokerGame = value; }
+        }
+        ///////////////////////////////////////////////////////
 
         public PlayerMobile()
         {
@@ -3630,6 +3640,16 @@ namespace Server.Mobiles
 
         protected override bool OnMove(Direction d)
         {
+            ///////////////////////////////////////////////POKER
+            if (m_PokerGame != null)
+            {
+                if (!HasGump<PokerLeaveGump>())
+                {
+                    SendGump(new PokerLeaveGump(this, m_PokerGame));
+                    return false;
+                }
+            }
+            ///////////////////////////////////////////////POKER
             if (!Core.SE)
             {
                 return base.OnMove(d);
