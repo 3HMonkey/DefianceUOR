@@ -2440,15 +2440,15 @@ namespace Server.Mobiles
 
             base.Resurrect();
 
-            if (Alive && !wasAlive)
-            {
-                Item deathRobe = new DeathRobe();
+            //if (Alive && !wasAlive)
+            //{
+            //    Item deathRobe = new DeathRobe();
 
-                if (!EquipItem(deathRobe))
-                {
-                    deathRobe.Delete();
-                }
-            }
+            //    if (!EquipItem(deathRobe))
+            //    {
+            //        deathRobe.Delete();
+            //    }
+            //}
         }
 
         public override void OnWarmodeChanged()
