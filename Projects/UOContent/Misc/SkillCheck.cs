@@ -176,6 +176,16 @@ namespace Server.Misc
                 gc *= 2;
             }
 
+            if (from.Region.GetRegion(typeof(HouseRegion)) != null)
+            {
+                gc *= 1.25; // -25%
+            }
+
+            if (from.Region.GetRegion(typeof(DungeonRegion)) != null)
+            {
+                gc *= 0.50; // *2
+            }
+
             if (from.Alive && (gc >= Utility.RandomDouble() && AllowGain(from, skill, amObj) || skill.Base < 10.0))
             {
                 Gain(from, skill);
