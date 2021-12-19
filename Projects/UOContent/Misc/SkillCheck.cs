@@ -19,7 +19,7 @@ namespace Server.Misc
         private const int
             LocationSize = 5; // The size of eeach location, make this smaller so players dont have to move as far
 
-        private static readonly bool AntiMacroCode = !Core.ML; // Change this to false to disable anti-macro code
+        private static readonly bool AntiMacroCode = false; // Change this to false to disable anti-macro code
 
         public static TimeSpan AntiMacroExpire = TimeSpan.FromMinutes(5.0); // How long do we remember targets/locations?
 
