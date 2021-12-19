@@ -491,7 +491,7 @@ namespace Server.Mobiles
                             spell = GetRandomManaDrainSpell();
                             break;
                         }
-                    case 7: // Invis ourselves
+                    /*case 7: // Invis ourselves
                         {
                             if (Utility.RandomBool())
                             {
@@ -502,7 +502,7 @@ namespace Server.Mobiles
 
                             spell = new InvisibilitySpell(m_Mobile);
                             break;
-                        }
+                        }*/
                     default: // Damage them
                         {
                             m_Mobile.DebugSay("Just doing damage");
