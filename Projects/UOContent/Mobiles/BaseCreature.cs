@@ -4234,6 +4234,11 @@ namespace Server.Mobiles
 
         public virtual void AlterMeleeDamageTo(Mobile to, ref int damage)
         {
+            if (Utility.RandomDouble() > .80)
+            {
+                to.PlaySound(0x133);                                                //Original bleed sound,you can change.
+                to.FixedParticles(0x377A, 244, 25, 9950, 31, 0, EffectLayer.Waist); //Original bleed particles.
+            }
         }
 
         public virtual bool CheckFoodPreference(Item f) =>
