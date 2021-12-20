@@ -60,4 +60,7 @@
     <ItemGroup>
       <Folder Include="Custom\Items" />
     </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Custom\Commands\AutoSpeedBooster.cs" />
+    </ItemGroup>
 </Project>
