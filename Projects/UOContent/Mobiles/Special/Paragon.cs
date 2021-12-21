@@ -11,7 +11,7 @@ namespace Server.Mobiles
 
         public static Map[] Maps =
         {
-            Map.Ilshenar
+            Map.Felucca
         };
 
         private static readonly TimeSpan FastRegenRate = TimeSpan.FromSeconds(.5);
@@ -33,7 +33,7 @@ namespace Server.Mobiles
             typeof(GlovesOfThePugilist)
         };
 
-        public static int Hue = 0x501; // Paragon hue
+        public static int Hue = 0x04AA; // Paragon hue
 
         // Buffs
         public static double HitsBuff = 5.0;
@@ -164,10 +164,10 @@ namespace Server.Mobiles
 
         public static bool CheckConvert(BaseCreature bc, Point3D location, Map m)
         {
-            if (!Core.AOS)
-            {
-                return false;
-            }
+            //if (!Core.AOS)
+            //{
+            //    return false;
+            //}
 
             if (Array.IndexOf(Maps, m) == -1)
             {
