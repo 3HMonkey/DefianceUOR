@@ -1,6 +1,7 @@
 using System;
 using Server.Items;
 using Server.Mobiles;
+using Server.SkillBalls;
 using Server.Utilities;
 
 namespace Server
@@ -465,7 +466,8 @@ namespace Server
             new[]
             {
                 new LootPackEntry(true, Gold, 100.00, "1d25"),
-                new LootPackEntry(false, Instruments, 0.02, 1)
+                new LootPackEntry(false, Instruments, 0.02, 1),
+                new LootPackEntry(false, new LootPackItem[] { new(typeof(SkillBallDynamic), 100), }, 0.2, 1),
             }
         );
 
@@ -475,7 +477,8 @@ namespace Server
                 new LootPackEntry(true, Gold, 100.00, "5d10+25"),
                 new LootPackEntry(false, Instruments, 0.10, 1),
                 new LootPackEntry(false, OldMagicItems, 1.00, 1, 1, 0, 60),
-                new LootPackEntry(false, OldMagicItems, 0.20, 1, 1, 10, 70)
+                new LootPackEntry(false, OldMagicItems, 0.20, 1, 1, 10, 70),
+                new LootPackEntry(false, new LootPackItem[] { new(typeof(SkillBallDynamic), 100), }, 1, 1),
             }
         );
 
@@ -486,7 +489,8 @@ namespace Server
                 new LootPackEntry(false, Instruments, 0.40, 1),
                 new LootPackEntry(false, OldMagicItems, 5.00, 1, 1, 20, 80),
                 new LootPackEntry(false, OldMagicItems, 2.00, 1, 1, 30, 90),
-                new LootPackEntry(false, OldMagicItems, 0.50, 1, 1, 40, 100)
+                new LootPackEntry(false, OldMagicItems, 0.50, 1, 1, 40, 100),
+                new LootPackEntry(false, new LootPackItem[] { new(typeof(SkillBallDynamic), 100), }, 1, 1),
             }
         );
 
@@ -497,7 +501,8 @@ namespace Server
                 new LootPackEntry(false, Instruments, 1.00, 1),
                 new LootPackEntry(false, OldMagicItems, 20.00, 1, 1, 60, 100),
                 new LootPackEntry(false, OldMagicItems, 10.00, 1, 1, 65, 100),
-                new LootPackEntry(false, OldMagicItems, 1.00, 1, 1, 70, 100)
+                new LootPackEntry(false, OldMagicItems, 1.00, 1, 1, 70, 100),
+                new LootPackEntry(false, new LootPackItem[] { new(typeof(SkillBallDynamic), 100), }, 5, 1),
             }
         );
 
@@ -509,7 +514,8 @@ namespace Server
                 new LootPackEntry(false, OldMagicItems, 33.00, 1, 1, 50, 100),
                 new LootPackEntry(false, OldMagicItems, 33.00, 1, 1, 60, 100),
                 new LootPackEntry(false, OldMagicItems, 20.00, 1, 1, 70, 100),
-                new LootPackEntry(false, OldMagicItems, 5.00, 1, 1, 80, 100)
+                new LootPackEntry(false, OldMagicItems, 5.00, 1, 1, 80, 100),
+                new LootPackEntry(false, new LootPackItem[] { new(typeof(SkillBallDynamic), 100), }, 10, 1),
             }
         );
 
@@ -523,7 +529,8 @@ namespace Server
                 new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 50, 100),
                 new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 50, 100),
                 new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 60, 100),
-                new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 60, 100)
+                new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 60, 100),
+                new LootPackEntry(false, new LootPackItem[] { new(typeof(SkillBallDynamic), 100), }, 100, 1),
             }
         );
 
@@ -541,7 +548,8 @@ namespace Server
                 new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 60, 100),
                 new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 60, 100),
                 new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 60, 100),
-                new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 70, 100)
+                new LootPackEntry(false, OldMagicItems, 100.00, 1, 1, 70, 100),
+                new LootPackEntry(false, new LootPackItem[] { new(typeof(SkillBallDynamic), 100), }, 100, 3)
             }
         );
 
