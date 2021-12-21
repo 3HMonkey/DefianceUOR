@@ -385,6 +385,8 @@ namespace Server.Engines.CannedEvil
 
         private static PowerScroll CreateRandomFelPS() => PowerScroll.CreateRandomNoCraft(5, 5);
 
+        private static PowerScroll CreateRandomForChampionsFelPS() => PowerScroll.CreateRandomForChampions(5, 5);
+
         public static void GiveScrollOfTranscendenceFelTo (Mobile killer, ScrollofTranscendence SoTF)
         {
             if (SoTF == null || killer == null) //sanity
@@ -568,7 +570,7 @@ namespace Server.Engines.CannedEvil
                                         }
                                         else
                                         {
-                                            PowerScroll PS = CreateRandomFelPS();
+                                            PowerScroll PS = CreateRandomForChampionsFelPS();
                                             GivePowerScrollFelTo (pm, PS);
                                         }
                                     }

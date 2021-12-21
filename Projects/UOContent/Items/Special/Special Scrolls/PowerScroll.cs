@@ -27,7 +27,11 @@ namespace Server.Items
             SkillName.Musicianship,
             SkillName.Provocation,
             SkillName.Discordance,
-            SkillName.Peacemaking
+            SkillName.Peacemaking,
+            SkillName.Fishing,
+            SkillName.Fletching,
+            SkillName.Tinkering,
+            SkillName.Carpentry
         };
 
         private static readonly SkillName[] m_AOSSkills =
@@ -152,6 +156,35 @@ namespace Server.Items
             {
                 skillName = Skills.RandomElement();
             } while (skillName == SkillName.Blacksmith || skillName == SkillName.Tailoring);
+
+            return new PowerScroll(skillName, 100 + Utility.RandomMinMax(min, max) * 5);
+        }
+
+        public static PowerScroll CreateRandomForChampions(int min, int max)
+        {
+            // To exclude
+            //SkillName.Blacksmith,
+            //SkillName.Tailoring,
+            //SkillName.Fletching
+            //SkillName.AnimalTaming,
+            //SkillName.AnimalLore,
+
+            min /= 5;
+            max /= 5;
+
+            SkillName skillName;
+
+            do
+            {
+                skillName = Skills.RandomElement();
+            } while (skillName == SkillName.Blacksmith
+                     || skillName == SkillName.Tailoring
+                     || skillName == SkillName.Fletching
+                     || skillName == SkillName.AnimalTaming
+                     || skillName == SkillName.AnimalLore
+                     || skillName == SkillName.Inscribe
+                     || skillName == SkillName.Tinkering
+                     );
 
             return new PowerScroll(skillName, 100 + Utility.RandomMinMax(min, max) * 5);
         }

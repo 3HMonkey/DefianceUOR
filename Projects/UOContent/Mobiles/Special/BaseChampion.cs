@@ -100,7 +100,7 @@ namespace Server.Mobiles
                 level = 10;
             }
 
-            return PowerScroll.CreateRandomNoCraft(level, level);
+            return PowerScroll.CreateRandomForChampions(level, level);
         }
 
         public void GivePowerScrolls()
@@ -159,7 +159,7 @@ namespace Server.Mobiles
             // Randomize
             toGive.Shuffle();
 
-            for (var i = 0; i < 6; ++i)
+            for (var i = 0; i < 2; ++i)
             {
                 var m = toGive[i % toGive.Count];
 
