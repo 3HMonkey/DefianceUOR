@@ -9,7 +9,7 @@ namespace Server.Mobiles
         public EnergyVortex()
             : base(AIType.AI_Melee, FightMode.Closest, 10, 1, 0.2, 0.4)
         {
-            if (Core.SE && Utility.RandomDouble() < 0.002) // Per OSI FoF, it's a 1/500 chance.
+            if (Utility.RandomDouble() < 0.002) // Per OSI FoF, it's a 1/500 chance.
             {
                 // Llama vortex!
                 Body = 0xDC;
@@ -24,11 +24,12 @@ namespace Server.Mobiles
             SetDex(200);
             SetInt(100);
 
-            SetHits(Core.SE ? 140 : 70);
+            //SetHits(Core.SE ? 140 : 70);
+            SetHits(500);
             SetStam(250);
             SetMana(0);
 
-            SetDamage(14, 17);
+            SetDamage(15, 19);
 
             SetDamageType(ResistanceType.Physical, 0);
             SetDamageType(ResistanceType.Energy, 100);
@@ -47,7 +48,7 @@ namespace Server.Mobiles
             Karma = 0;
 
             VirtualArmor = 40;
-            ControlSlots = Core.SE ? 2 : 1;
+            ControlSlots = 2;
         }
 
         public EnergyVortex(Serial serial)
@@ -66,6 +67,8 @@ namespace Server.Mobiles
 
         public override bool BleedImmune => true;
         public override Poison PoisonImmune => Poison.Lethal;
+
+        public override Poison HitPoison { get { return (0.75 > Utility.RandomDouble()) ? Poison.Deadly : Poison.Greater; } }
 
         public override double GetFightModeRanking(Mobile m, FightMode acqType, bool bPlayerOnly) =>
             (m.Int + m.Skills.Magery.Value) / Math.Max(GetDistanceToSqrt(m), 1.0);
