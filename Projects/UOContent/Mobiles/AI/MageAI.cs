@@ -54,7 +54,7 @@ namespace Server.Mobiles
         private long m_NextCastTime;
         private long m_NextHealTime;
 
-        private LandTarget m_RevealTarget;
+        private LandTarget m_RevealTarget = null;
 
         public MageAI(BaseCreature m)
             : base(m)
@@ -846,6 +846,7 @@ namespace Server.Mobiles
                 {
                     m_LastTarget = null;
                 }
+                /*
                 else if (m_Mobile.Spell == null && Core.TickCount - m_NextCastTime >= 0)
                 {
                     m_Mobile.DebugSay("I am going to reveal my last target");
@@ -859,7 +860,7 @@ namespace Server.Mobiles
                     }
 
                     m_NextCastTime = Core.TickCount + (int)GetDelay(spell).TotalMilliseconds;
-                }
+                }*/
             }
 
             if (AcquireFocusMob(m_Mobile.RangePerception, m_Mobile.FightMode, false, false, true))
