@@ -1,0 +1,14 @@
+{
+  "SwaggerSettings": {
+    "Enable": true,
+    "Title": "WebAPI - ModernUO",
+    "Version": "v1",
+    "Description": "The server's WebAPI using ModernUO, the Ultima Online Server Emulator for the modern era!'",
+    "ContactName": "3HMonkey",
+    "ContactEmail": "info@modernuo.com",
+    "ContactUrl": "https://discord.com/invite/DHkNUsq",
+    "License": true,
+    "LicenseName": "GPL-3.0",
+    "LicenseUrl": "https://github.com/modernuo/ModernUO/blob/main/LICENSE"
+  }
+}
