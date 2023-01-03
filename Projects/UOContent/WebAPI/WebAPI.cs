@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Server.WebAPI.Controllers.V1;
 using Server.WebAPI.Extensions;
+using Server.WebAPI.Middlewares;
 using Server.WebAPI.Services;
 
 namespace Server.WebAPI;
@@ -52,6 +53,8 @@ public class WebAPICore
         app.UseSwaggerWithVersioning();
 
         app.UseAuthorization();
+
+        app.UseMiddleware<APIKeyMiddleware>();
 
         app.MapControllers();
 

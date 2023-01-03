@@ -16,6 +16,8 @@ internal static class Configurations
             .AddJsonFile($"{configurationsDirectory}/logger.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
             .AddJsonFile($"{configurationsDirectory}/openapi.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"{configurationsDirectory}/openapi.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            .AddJsonFile($"{configurationsDirectory}/security.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"{configurationsDirectory}/security.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables();
         return builder;
 
